@@ -1,0 +1,374 @@
+[
+  {
+    "patient_profile": {
+      "cancer_type": "Non-Small Cell Lung Cancer",
+      "stage": "IVB",
+      "biomarkers": [
+        "EGFR",
+        "EGFR exon 19 deletion",
+        "PD-L1"
+      ],
+      "prior_therapy_lines": 0,
+      "ecog_status": 1,
+      "brain_metastases": null,
+      "location": null
+    },
+    "query": "Non-Small Cell Lung Cancer EGFR",
+    "top_matches": [
+      {
+        "nct_id": "NCT06585059",
+        "title": "Clinical Trial of TQB2928 in Combination With a Third-Generation Epidermal Growth Factor Receptor (EGFR) Tyrosine Kinase Inhibitor (TKI) in Patients With Advanced Non-Small Cell Lung Cancers",
+        "match_score": 1.0,
+        "phase": "PHASE1",
+        "status": "NOT_YET_RECRUITING",
+        "distance_km": null,
+        "explanation": "(PHASE1) Studie zu TQB2928 injection + Almonertinib Mesilate Tablets für Advanced Non-small Cell Lung Cancer."
+      },
+      {
+        "nct_id": "NCT04575415",
+        "title": "Bevacizumab Plus EGFR-TKIs in Chinese Patients With EGFR-mutant NSCLC: a Real-world Study",
+        "match_score": 1.0,
+        "phase": null,
+        "status": "UNKNOWN",
+        "distance_km": null,
+        "explanation": "Studie zu Bevacizumab für NSCLC."
+      },
+      {
+        "nct_id": "NCT03916913",
+        "title": "TKI Followed by Thoracic Radiotherapy for Stage IV EGFR Mutant NSCLC",
+        "match_score": 1.0,
+        "phase": "NA",
+        "status": "UNKNOWN",
+        "distance_km": null,
+        "explanation": "(NA) Studie zu Local radiation therapy für Non-Small Cell Lung Cancer Metastatic."
+      }
+    ]
+  },
+  {
+    "patient_profile": {
+      "cancer_type": null,
+      "stage": null,
+      "biomarkers": [],
+      "prior_therapy_lines": null,
+      "ecog_status": null,
+      "brain_metastases": null,
+      "location": null
+    },
+    "query": "cancer",
+    "top_matches": [
+      {
+        "nct_id": "NCT00268684",
+        "title": "Comparison Study of WBRT and SRS Alone Versus With Temozolomide or Erlotinib in Patients With Brain Metastases of NSCLC",
+        "match_score": 1.0,
+        "phase": "PHASE3",
+        "status": "UNKNOWN",
+        "distance_km": null,
+        "explanation": "(PHASE3) Studie zu Erlotinib, Temozolomide für Carcinoma, Non-Small-Cell Lung."
+      },
+      {
+        "nct_id": "NCT02277938",
+        "title": "Acetylamantadine Excretion by Cancer Patients",
+        "match_score": 1.0,
+        "phase": null,
+        "status": "UNKNOWN",
+        "distance_km": null,
+        "explanation": "Studie zu Amantadine für Cancer."
+      },
+      {
+        "nct_id": "NCT07237438",
+        "title": "TIVA Versus Balanced Anesthesia on Muscle Mass in CRC Surgery",
+        "match_score": 1.0,
+        "phase": "NA",
+        "status": "RECRUITING",
+        "distance_km": null,
+        "explanation": "(NA) Studie zu total intravenous anaesthesia für Colorectal Cancer (CRC)."
+      }
+    ]
+  },
+  {
+    "patient_profile": {
+      "cancer_type": "Non-Small Cell Lung Cancer",
+      "stage": "IVB",
+      "biomarkers": [
+        "EGFR",
+        "EGFR exon 19 deletion",
+        "PD-L1"
+      ],
+      "prior_therapy_lines": null,
+      "ecog_status": 1,
+      "brain_metastases": false,
+      "location": {
+        "latitude": 52.5173885,
+        "longitude": 13.3951309,
+        "label": "Berlin"
+      }
+    },
+    "query": "Non-Small Cell Lung Cancer EGFR",
+    "top_matches": [
+      {
+        "nct_id": "NCT03804580",
+        "title": "First-line Treatment With Osimertinib in EGFR-mutated Non-small Cell Lung Cancer",
+        "match_score": 1.0,
+        "phase": "PHASE2",
+        "status": "ACTIVE_NOT_RECRUITING",
+        "distance_km": 354.7834323332564,
+        "explanation": "(PHASE2) Studie zu osimertinib für Lung Cancer."
+      },
+      {
+        "nct_id": "NCT05145244",
+        "title": "Copenhagen Master Observational Trial",
+        "match_score": 1.0,
+        "phase": null,
+        "status": "RECRUITING",
+        "distance_km": 355.3494517785871,
+        "explanation": "Studie zu NO intervention für Non-small Cell Lung Cancer."
+      },
+      {
+        "nct_id": "NCT02906150",
+        "title": "Thymosin Alpha 1 Plus Maintenance Therapy With the Standard of Care (SoC) in Patients With Metastatic Non-Small Cell Lung Cancer (NSCLC), EGFR Wild Type",
+        "match_score": 1.0,
+        "phase": "PHASE2",
+        "status": "UNKNOWN",
+        "distance_km": 841.8002886163505,
+        "explanation": "(PHASE2) Studie zu Thymalfasin (Thymosin alpha 1, Ta1) für Non-Small Cell Lung Cancer."
+      }
+    ]
+  },
+  {
+    "patient_profile": {
+      "cancer_type": "Lung Adenocarcinoma",
+      "stage": "IV",
+      "biomarkers": [
+        "KRAS"
+      ],
+      "prior_therapy_lines": null,
+      "ecog_status": 2,
+      "brain_metastases": true,
+      "location": {
+        "latitude": 48.1371079,
+        "longitude": 11.5753822,
+        "label": "Munich"
+      }
+    },
+    "query": "Lung Adenocarcinoma KRAS",
+    "top_matches": [
+      {
+        "nct_id": "NCT05094336",
+        "title": "A Study of AMG 193 in Participants With Advanced MTAP-null Solid Tumors (MTAPESTRY 101)",
+        "match_score": 1.0,
+        "phase": "PHASE1",
+        "status": "ACTIVE_NOT_RECRUITING",
+        "distance_km": 115.60349808623114,
+        "explanation": "(PHASE1) Studie zu AMG 193 für Advanced MTAP-null Solid Tumors."
+      },
+      {
+        "nct_id": "NCT06179160",
+        "title": "A Study to Evaluate INCB161734 in Participants With Advanced or Metastatic Solid Tumors With KRAS G12D Mutation",
+        "match_score": 1.0,
+        "phase": "PHASE1",
+        "status": "RECRUITING",
+        "distance_km": 303.3138068552188,
+        "explanation": "(PHASE1) Studie zu INCB161734 für Solid Tumors."
+      },
+      {
+        "nct_id": "NCT06586515",
+        "title": "MOONRAY-01, A Study of LY3962673 in Participants With KRAS G12D-Mutant Solid Tumors",
+        "match_score": 1.0,
+        "phase": "PHASE1",
+        "status": "RECRUITING",
+        "distance_km": 303.3138068552188,
+        "explanation": "(PHASE1) Studie zu LY3962673 für Pancreatic Ductal Adenocarcinoma."
+      }
+    ]
+  },
+  {
+    "patient_profile": {
+      "cancer_type": "Breast Cancer",
+      "stage": "III",
+      "biomarkers": [
+        "BRCA1",
+        "HER2"
+      ],
+      "prior_therapy_lines": null,
+      "ecog_status": 0,
+      "brain_metastases": null,
+      "location": {
+        "latitude": 53.550341,
+        "longitude": 10.000654,
+        "label": "Hamburg"
+      }
+    },
+    "query": "Breast Cancer BRCA1",
+    "top_matches": [
+      {
+        "nct_id": "NCT05078671",
+        "title": "Pharmacokinetic Boosting of Olaparib to Improve Exposure, Tolerance and Cost-effectiveness",
+        "match_score": 1.0,
+        "phase": "PHASE4",
+        "status": "RECRUITING",
+        "distance_km": 230.67922629253263,
+        "explanation": "(PHASE4) Studie zu Olaparib für Cancer."
+      },
+      {
+        "nct_id": "NCT01630226",
+        "title": "Cisplatin-monotherapy in the Treatment of BRCA1 Positive Breast Cancer Patients in Poland",
+        "match_score": 1.0,
+        "phase": "PHASE2",
+        "status": "UNKNOWN",
+        "distance_km": 301.4237439634527,
+        "explanation": "(PHASE2) Studie zu Neoadjuvant Cisplatin Chemotherapy für BRCA1 Mutation."
+      },
+      {
+        "nct_id": "NCT05404321",
+        "title": "Establishment of an ex Vivo Tumor Collection of Triple-negative Breast Cancers in Order to Validate the Interest of Innovative Therapies and the Search for Predictive Biomarkers of Response to Treatment",
+        "match_score": 1.0,
+        "phase": null,
+        "status": "RECRUITING",
+        "distance_km": 866.2927143168623,
+        "explanation": "Studie zu Establishment of ex vivo breast cancer organoid models für Triple Negative Breast Cancer."
+      }
+    ]
+  },
+  {
+    "patient_profile": {
+      "cancer_type": "Colorectal Cancer",
+      "stage": "II",
+      "biomarkers": [
+        "BRAF"
+      ],
+      "prior_therapy_lines": null,
+      "ecog_status": 1,
+      "brain_metastases": false,
+      "location": {
+        "latitude": 50.1106444,
+        "longitude": 8.6820917,
+        "label": "Frankfurt"
+      }
+    },
+    "query": "Colorectal Cancer BRAF",
+    "top_matches": [
+      {
+        "nct_id": "NCT04589845",
+        "title": "Tumor-agnostic Precision Immuno-oncology and Somatic Targeting Rational for You (TAPISTRY) Platform Study",
+        "match_score": 1.0,
+        "phase": "PHASE2",
+        "status": "RECRUITING",
+        "distance_km": 97.38946518845663,
+        "explanation": "(PHASE2) Studie zu Entrectinib für Solid Tumors."
+      },
+      {
+        "nct_id": "NCT05861505",
+        "title": "COLLISION RELAPSE Trial",
+        "match_score": 1.0,
+        "phase": "PHASE3",
+        "status": "RECRUITING",
+        "distance_km": 364.6464697167563,
+        "explanation": "(PHASE3) Studie zu Neoadjuvant systemic therapy (CAPOX+/-B FOLFOX+/-B FOLFIRI+/-B) für Colorectal Cancer."
+      },
+      {
+        "nct_id": "NCT02633098",
+        "title": "A Safety and Effectiveness Study of Pre-operative Artesunate in Stage II/III Colorectal Cancer",
+        "match_score": 1.0,
+        "phase": "PHASE2",
+        "status": "UNKNOWN",
+        "distance_km": 583.618291460703,
+        "explanation": "(PHASE2) Studie zu Artesunate 200mg für Colorectal Cancer."
+      }
+    ]
+  },
+  {
+    "patient_profile": {
+      "cancer_type": "Ovarian Cancer",
+      "stage": "IIIC",
+      "biomarkers": [
+        "BRCA2"
+      ],
+      "prior_therapy_lines": null,
+      "ecog_status": 1,
+      "brain_metastases": false,
+      "location": {
+        "latitude": 47.3744489,
+        "longitude": 8.5410422,
+        "label": "Zurich"
+      }
+    },
+    "query": "Ovarian Cancer BRCA2",
+    "top_matches": [
+      {
+        "nct_id": "NCT06972693",
+        "title": "NGS-based Germline and Somatic Genetic Test in Ovarian Carcinoma",
+        "match_score": 1.0,
+        "phase": "PHASE4",
+        "status": "ACTIVE_NOT_RECRUITING",
+        "distance_km": 218.13896633450486,
+        "explanation": "(PHASE4) Studie zu BRCA testing für Ovarian Carcinoma."
+      },
+      {
+        "nct_id": "NCT06403904",
+        "title": "Assessing Clinical Features and Outcome of Breast Cancer in PALB2 Mutation Carriers: the Palbreast Study",
+        "match_score": 1.0,
+        "phase": null,
+        "status": "RECRUITING",
+        "distance_km": 354.6806272622047,
+        "explanation": "Studie zu eine Behandlung für Breast Cancer."
+      },
+      {
+        "nct_id": "NCT03835793",
+        "title": "Health After eaRly Menopause Due to Oophorectomy",
+        "match_score": 1.0,
+        "phase": null,
+        "status": "UNKNOWN",
+        "distance_km": 614.232973719952,
+        "explanation": "Studie zu CAC-score für Surgical Menopause."
+      }
+    ]
+  },
+  {
+    "patient_profile": {
+      "cancer_type": "Melanoma",
+      "stage": "IV",
+      "biomarkers": [
+        "BRAF",
+        "PD-L1"
+      ],
+      "prior_therapy_lines": null,
+      "ecog_status": 1,
+      "brain_metastases": false,
+      "location": {
+        "latitude": 48.2083537,
+        "longitude": 16.3725042,
+        "label": "Vienna"
+      }
+    },
+    "query": "Melanoma BRAF",
+    "top_matches": [
+      {
+        "nct_id": "NCT05270044",
+        "title": "Adjuvant Encorafenib and Binimetinib in High-risk Stage II Melanoma With a BRAF Mutation.",
+        "match_score": 1.0,
+        "phase": "PHASE3",
+        "status": "ACTIVE_NOT_RECRUITING",
+        "distance_km": 0.034897328170240154,
+        "explanation": "(PHASE3) Studie zu Encorafenib and Binimetinib für Melanoma."
+      },
+      {
+        "nct_id": "NCT02977052",
+        "title": "Optimal Neo-adjuvant Combination Scheme of Ipilimumab and Nivolumab",
+        "match_score": 1.0,
+        "phase": "PHASE2",
+        "status": "UNKNOWN",
+        "distance_km": 0.034897328170240154,
+        "explanation": "(PHASE2) Studie zu Ipilimumab für Malignant Melanoma Stage III."
+      },
+      {
+        "nct_id": "NCT05727904",
+        "title": "Study to Investigate Lifileucel Regimen Plus Pembrolizumab Compared With Pembrolizumab Alone in Participants With Untreated Advanced Melanoma.",
+        "match_score": 1.0,
+        "phase": "PHASE3",
+        "status": "RECRUITING",
+        "distance_km": 355.7485538261802,
+        "explanation": "(PHASE3) Studie zu Lifileucel plus Pembrolizumab für Metastatic Melanoma."
+      }
+    ]
+  }
+]
