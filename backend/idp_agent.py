@@ -1,9 +1,10 @@
 import json
 import re
-from collections import Counter, defaultdict
-from typing import Callable, Dict, List, Optional, Tuple
+from collections import Counter
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field, root_validator, validator
+from typing_extensions import Literal
 
 
 class FacilityInfo(BaseModel):
@@ -64,6 +65,28 @@ class CapabilitySchema(BaseModel):
         if capability_keys != evidence_keys:
             raise ValueError("extracted_evidence keys must match capability keys")
         return values
+
+
+class EvidenceSnippet(BaseModel):
+    """Auditable evidence snippet with document and chunk provenance."""
+
+    text: str = Field(..., min_length=1)
+    document_id: str = Field(..., min_length=1)
+    chunk_id: str = Field(..., min_length=1)
+
+
+class CapabilityDecision(BaseModel):
+    """Jury-facing decision record for a single capability."""
+
+    value: bool
+    confidence: float
+    decision_reason: Literal[
+        "direct_evidence",
+        "insufficient_evidence",
+        "conflicting_evidence",
+        "suspicious_claim",
+    ]
+    evidence: List[EvidenceSnippet]
 
 
 class IDPAgent:
@@ -272,6 +295,120 @@ class IDPAgent:
         return deduped
 
 
+def build_capability_decisions(
+    idp_output: Union[CapabilitySchema, Dict[str, object]],
+) -> Dict[str, CapabilityDecision]:
+    """
+    Convert raw IDP outputs into auditable capability decisions.
+
+    This layer is deterministic, conservative, and favors underclaiming.
+    """
+    if isinstance(idp_output, CapabilitySchema):
+        capabilities = idp_output.capabilities.dict()
+        confidences = idp_output.metadata.confidence_scores
+        evidence_map = idp_output.metadata.extracted_evidence
+        suspicious_claims = idp_output.metadata.suspicious_claims
+    else:
+        capabilities = idp_output["capabilities"]
+        confidences = idp_output["metadata"]["confidence_scores"]
+        evidence_map = idp_output["metadata"]["extracted_evidence"]
+        suspicious_claims = idp_output["metadata"]["suspicious_claims"]
+
+    decisions: Dict[str, CapabilityDecision] = {}
+    strong_threshold = 0.6
+    suspicious_override_threshold = 0.8
+
+    for capability, raw_value in capabilities.items():
+        confidence = float(confidences.get(capability, 0.0))
+        raw_evidence = evidence_map.get(capability, [])
+        evidence = _normalize_evidence(raw_evidence)
+
+        # Determine if evidence includes negations (potential conflicts).
+        has_negation = any(_is_negated(ev.text) for ev in evidence)
+        has_positive = any(not _is_negated(ev.text) for ev in evidence)
+        has_conflict = has_negation and has_positive
+
+        # Identify suspicious claims that appear to mention this capability.
+        suspicious_match = _suspicious_for_capability(capability, suspicious_claims)
+
+        # Conservative decision logic:
+        # - Never upgrade weak evidence to True.
+        # - Conflicts or suspicious claims downgrade unless evidence is very strong.
+        if raw_value and confidence >= strong_threshold and evidence and not has_conflict:
+            value = True
+            reason = "direct_evidence"
+        else:
+            value = False
+            reason = "insufficient_evidence"
+
+        if has_conflict:
+            value = False
+            reason = "conflicting_evidence"
+
+        if suspicious_match:
+            # If marketing-style claims are present, require extra-strong evidence.
+            if confidence < suspicious_override_threshold:
+                value = False
+                reason = "suspicious_claim"
+
+        decisions[capability] = CapabilityDecision(
+            value=value,
+            confidence=confidence,
+            decision_reason=reason,
+            evidence=evidence,
+        )
+
+    return decisions
+
+
+def _normalize_evidence(raw_evidence: List[object]) -> List[EvidenceSnippet]:
+    evidence: List[EvidenceSnippet] = []
+    for item in raw_evidence:
+        if isinstance(item, dict):
+            text = str(item.get("text", "")).strip()
+            document_id = str(item.get("document_id", "unknown")).strip() or "unknown"
+            chunk_id = str(item.get("chunk_id", "unknown")).strip() or "unknown"
+        else:
+            text = str(item).strip()
+            document_id = "unknown"
+            chunk_id = "unknown"
+        if text:
+            evidence.append(
+                EvidenceSnippet(
+                    text=text,
+                    document_id=document_id,
+                    chunk_id=chunk_id,
+                )
+            )
+    return evidence
+
+
+def _is_negated(text: str) -> bool:
+    lowered = text.lower()
+    negations = ["no ", "not ", "without ", "none ", "lack ", "lacks ", "absent "]
+    return any(token in lowered for token in negations)
+
+
+def _suspicious_for_capability(capability: str, claims: List[str]) -> bool:
+    keywords = {
+        "oncology_services": ["oncology", "cancer"],
+        "ct_scanner": ["ct", "computed tomography"],
+        "mri_scanner": ["mri", "magnetic resonance"],
+        "pathology_lab": ["pathology", "lab"],
+        "genomic_testing": ["genomic", "genetics", "sequencing"],
+        "chemotherapy_delivery": ["chemotherapy"],
+        "radiotherapy": ["radiotherapy", "radiation"],
+        "icu": ["icu", "intensive care"],
+        "trial_coordinator": ["trial", "research"],
+    }
+    tokens = keywords.get(capability, [])
+    for claim in claims:
+        lowered = claim.lower()
+        if any(token in lowered for token in tokens):
+            return True
+    return False
+
+
 if __name__ == "__main__":
     sample_text = (
         "Sunrise Medical Center is a regional hospital in Kintampo, Ghana.\n"
@@ -347,3 +484,5 @@ if __name__ == "__main__":
     agent = IDPAgent(llm_extractor=mock_llm)
     parsed = agent.parse_facility_document(sample_text)
     print(parsed.json(indent=2))
+    decisions = build_capability_decisions(parsed)
+    print(json.dumps({k: v.dict() for k, v in decisions.items()}, indent=2))
