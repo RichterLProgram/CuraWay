@@ -3,7 +3,7 @@ import re
 from collections import Counter
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from typing_extensions import Literal
 
 
@@ -36,7 +36,8 @@ class Metadata(BaseModel):
     extracted_evidence: Dict[str, List[str]]
     suspicious_claims: List[str]
 
-    @validator("confidence_scores")
+    @field_validator("confidence_scores")
+    @classmethod
     def validate_confidences(cls, value: Dict[str, float]) -> Dict[str, float]:
         for key, score in value.items():
             if not 0.0 <= score <= 1.0:
@@ -51,15 +52,33 @@ class CapabilitySchema(BaseModel):
     capabilities: Capabilities
     metadata: Metadata
 
-    @root_validator
-    def validate_alignment(cls, values: Dict) -> Dict:
+    @model_validator(mode="before")
+    @classmethod
+    def validate_alignment(cls, values: object) -> object:
+        if not isinstance(values, dict):
+            return values
         capabilities = values.get("capabilities")
         metadata = values.get("metadata")
         if not capabilities or not metadata:
             return values
-        capability_keys = set(capabilities.dict().keys())
-        confidence_keys = set(metadata.confidence_scores.keys())
-        evidence_keys = set(metadata.extracted_evidence.keys())
+        cap_keys = (
+            capabilities.model_dump().keys()
+            if hasattr(capabilities, "model_dump")
+            else capabilities.keys()
+        )
+        capability_keys = set(cap_keys)
+        meta_conf = (
+            metadata.confidence_scores
+            if hasattr(metadata, "confidence_scores")
+            else metadata.get("confidence_scores", {})
+        )
+        meta_ev = (
+            metadata.extracted_evidence
+            if hasattr(metadata, "extracted_evidence")
+            else metadata.get("extracted_evidence", {})
+        )
+        confidence_keys = set(meta_conf.keys())
+        evidence_keys = set(meta_ev.keys())
         if capability_keys != confidence_keys:
             raise ValueError("confidence_scores keys must match capability keys")
         if capability_keys != evidence_keys:
@@ -217,7 +236,7 @@ class IDPAgent:
     def _aggregate_capabilities(
         self, results: List[Dict], full_text: str
     ) -> Tuple[Capabilities, Metadata]:
-        capability_keys = list(Capabilities.__fields__.keys())
+        capability_keys = list(Capabilities.model_fields.keys())
         evidence: Dict[str, List[str]] = {key: [] for key in capability_keys}
         confidences: Dict[str, float] = {key: 0.0 for key in capability_keys}
         decisions: Dict[str, bool] = {key: False for key in capability_keys}
@@ -304,7 +323,7 @@ def build_capability_decisions(
     This layer is deterministic, conservative, and favors underclaiming.
     """
     if isinstance(idp_output, CapabilitySchema):
-        capabilities = idp_output.capabilities.dict()
+        capabilities = idp_output.capabilities.model_dump()
         confidences = idp_output.metadata.confidence_scores
         evidence_map = idp_output.metadata.extracted_evidence
         suspicious_claims = idp_output.metadata.suspicious_claims
@@ -483,6 +502,6 @@ if __name__ == "__main__":
 
     agent = IDPAgent(llm_extractor=mock_llm)
     parsed = agent.parse_facility_document(sample_text)
-    print(parsed.json(indent=2))
+    print(parsed.model_dump_json(indent=2))
     decisions = build_capability_decisions(parsed)
-    print(json.dumps({k: v.dict() for k, v in decisions.items()}, indent=2))
+    print(json.dumps({k: v.model_dump() for k, v in decisions.items()}, indent=2))
