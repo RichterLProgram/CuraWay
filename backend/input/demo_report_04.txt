@@ -1,0 +1,7 @@
+Patient: David R.
+Diagnosis: Colorectal cancer, Stage II
+Biomarker: BRAF
+Prior therapy lines: 1
+ECOG 1
+No active brain metastases
+Location: Frankfurt

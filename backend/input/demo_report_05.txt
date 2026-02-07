@@ -1,0 +1,7 @@
+Patient: Sofia K.
+Diagnosis: Ovarian cancer, Stage IIIC
+Biomarker: BRCA2
+Prior therapy lines: 1
+ECOG 1
+No brain metastases
+Location: Zurich
