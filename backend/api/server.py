@@ -28,6 +28,7 @@ from src.supply.facility_parser import parse_facility_document
 from src.supply.fallback_parse import parse_supply_fallback
 from src.supply.evidence_index import build_evidence_index
 from src.validation.anomaly_agent import validate_supply
+from backend.api.routes_ai import router as ai_router
 
 
 STATIC_DIR = Path(__file__).resolve().parents[2] / "backend" / "static"
@@ -380,6 +381,7 @@ async def upload_dataset(file: UploadFile = File(...)) -> Dict[str, object]:
     }
 
 
+fastapi_app.include_router(ai_router)
 fastapi_app.mount("/api", WSGIMiddleware(app))
 
 
