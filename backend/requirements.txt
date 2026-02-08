@@ -12,7 +12,7 @@ pyyaml
 anthropic
 # RAG + Orchestration stack
 langgraph==0.0.40
-langchain-core==0.1.23
+langchain-core==0.1.46
 sentence-transformers==2.3.1
 lancedb==0.5.7
 mlflow==2.10.2
