@@ -52,4 +52,4 @@ COPY backend/ backend/
 COPY --from=frontend_builder /tmp/frontend_build /app/backend/static
 
 EXPOSE 8000
-CMD ["sh", "-c", "uvicorn backend.api.server:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "gunicorn backend.api.server:app --bind 0.0.0.0:${PORT:-8000} --workers 2 --threads 8 --timeout 120"]

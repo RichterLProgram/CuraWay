@@ -2,6 +2,7 @@ flask
 flask-cors
 fastapi
 uvicorn[standard]
+gunicorn
 pydantic
 pandas
 openai
