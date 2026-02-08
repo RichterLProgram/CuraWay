@@ -49,10 +49,13 @@ FROM python:3.12-slim AS backend
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH="/app/backend"
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PIP_NO_CACHE_DIR=1
+ENV PIP_ONLY_BINARY=:all:
 WORKDIR /app
 
 COPY backend/requirements.txt backend/requirements.txt
-RUN pip install --no-cache-dir -r backend/requirements.txt
+RUN pip install -r backend/requirements.txt
 
 COPY backend/ backend/
 COPY --from=frontend_builder /tmp/frontend_build /app/backend/static
