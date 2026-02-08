@@ -96,7 +96,6 @@ async def ask_question(request: AskRequest) -> Dict:
                 mlflow.log_metric("answer_length", len(result["answer"]))
 
                 mlflow.set_tag("source", "orchestrator")
-                mlflow.set_tag("databricks_ready", "true")
 
                 if result["sources"]:
                     chunks_artifact = json.dumps(result["sources"], indent=2)

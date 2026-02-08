@@ -6,7 +6,6 @@
 - LangGraph-based orchestrator (Retrieve -> Generate -> Validate)
 - MLflow experiment tracking
 - Medical safety validator (heuristic)
-- Databricks-ready scaffold (requires env vars to activate)
 
 ## Quick Start
 
@@ -47,17 +46,6 @@ curl -X POST http://localhost:8000/api/ask \
 ```bash
 curl "http://localhost:8000/api/mlflow/recent?n=5"
 ```
-
-## Databricks Integration
-
-To enable Databricks features, set:
-```bash
-export DATABRICKS_HOST=your-workspace.cloud.databricks.com
-export DATABRICKS_TOKEN=your-token
-export DATABRICKS_SQL_WAREHOUSE_ID=your-warehouse-id
-```
-
-Without these, the system runs fully locally with LanceDB.
 
 ## Architecture
 

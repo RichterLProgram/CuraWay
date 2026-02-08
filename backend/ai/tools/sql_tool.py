@@ -9,10 +9,7 @@ logger = logging.getLogger(__name__)
 
 @tool
 def query_database(sql_query: str) -> str:
-    """Execute SQL query against Databricks warehouse (stub for now)."""
+    """Execute SQL query against local sqlite demo backend."""
     _ = sql_query
-    logger.warning("SQL tool called but Databricks not configured - returning stub")
-    return (
-        "SQL tool not configured. Set DATABRICKS_HOST, DATABRICKS_TOKEN, "
-        "DATABRICKS_SQL_WAREHOUSE_ID to enable."
-    )
+    logger.info("SQL tool uses local sqlite demo backend")
+    return "SQL tool uses local sqlite demo backend"

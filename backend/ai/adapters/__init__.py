@@ -1,1 +1,1 @@
-# Adapters for external systems (e.g., Databricks).
+# Adapters for external systems.
