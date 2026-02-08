@@ -1,10 +1,18 @@
 from __future__ import annotations
 
+import json
 import os
-from typing import Dict
+import sys
+from collections import Counter
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Dict, List
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.append(str(PROJECT_ROOT))
 
 from src.demand.fallback_parse import parse_demand_fallback
 from src.demand.profile_extractor import extract_demand_from_text
@@ -24,6 +32,222 @@ from src.validation.anomaly_agent import validate_supply
 
 app = Flask(__name__)
 CORS(app)
+
+DATA_DIR = PROJECT_ROOT / "output" / "data"
+
+
+def load_json(filename: str) -> Any:
+    path = DATA_DIR / filename
+    with path.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def format_capability(value: str) -> str:
+    return value.replace("_", " ").replace("-", " ").strip()
+
+
+def parse_region(location: str) -> str:
+    parts = [part.strip() for part in location.split(",") if part.strip()]
+    if len(parts) >= 2:
+        return parts[-2].replace("Region", "").strip()
+    return location.strip() or "Unknown"
+
+
+def build_demand_data() -> Dict[str, Any]:
+    demand_entries = load_json("demand_data.json")
+    map_entries = load_json("map_data.json")
+    demand_map: Dict[str, Dict[str, Any]] = {}
+    for entry in map_entries:
+        label = entry.get("label", "")
+        if label.startswith("Demand:"):
+            demand_map[label.split("Demand:", 1)[1]] = entry
+
+    base_date = datetime.utcnow().date()
+    points = []
+    diagnosis_counts: Counter[str] = Counter()
+
+    for idx, entry in enumerate(demand_entries):
+        profile = entry.get("profile", {})
+        patient_id = profile.get("patient_id", f"D-{idx + 1}")
+        map_point = demand_map.get(patient_id, {})
+
+        diagnosis = profile.get("diagnosis", "Unknown")
+        diagnosis_counts[diagnosis] += 1
+
+        urgency = int(profile.get("urgency_score", 5))
+        intensity = float(
+            map_point.get("intensity", min(1.0, max(0.1, urgency / 10)))
+        )
+
+        points.append(
+            {
+                "id": patient_id,
+                "lat": float(map_point.get("lat", 0.0)),
+                "lng": float(map_point.get("lng", 0.0)),
+                "intensity": intensity,
+                "diagnosis": diagnosis,
+                "urgency": urgency,
+                "region": parse_region(profile.get("location", "")),
+                "date": (base_date - timedelta(days=idx)).isoformat(),
+            }
+        )
+
+    top_diagnoses = [
+        {"name": name, "count": count}
+        for name, count in diagnosis_counts.most_common(5)
+    ]
+
+    return {
+        "total_count": len(demand_entries),
+        "points": points,
+        "top_diagnoses": top_diagnoses,
+    }
+
+
+def build_supply_data() -> Dict[str, Any]:
+    supply_entries = load_json("supply_data.json")
+    facilities = []
+    capability_counts: Counter[str] = Counter()
+    coverage_total = 0.0
+
+    for idx, entry in enumerate(supply_entries):
+        location = entry.get("location", {})
+        name = entry.get("name", "Facility")
+        coverage = float(entry.get("coverage_score", 0.0))
+        coverage_total += coverage
+
+        lower_name = name.lower()
+        if "hospital" in lower_name:
+            facility_type = "Hospital"
+        elif "clinic" in lower_name:
+            facility_type = "Clinic"
+        else:
+            facility_type = "Facility"
+
+        capabilities = [format_capability(c) for c in entry.get("capabilities", [])]
+        capability_counts.update(capabilities)
+
+        facilities.append(
+            {
+                "id": entry.get("facility_id", f"f-{idx + 1}"),
+                "name": name,
+                "lat": float(location.get("lat", 0.0)),
+                "lng": float(location.get("lng", 0.0)),
+                "type": facility_type,
+                "capabilities": capabilities,
+                "coverage": int(round(coverage)),
+                "beds": int(50 + coverage * 8),
+                "staff": int(80 + coverage * 12),
+                "region": location.get("region", "Unknown"),
+            }
+        )
+
+    total_count = len(supply_entries)
+    avg_coverage = int(round(coverage_total / total_count)) if total_count else 0
+    top_capabilities = [
+        {"name": name, "count": count}
+        for name, count in capability_counts.most_common(6)
+    ]
+
+    return {
+        "total_count": total_count,
+        "avg_coverage": avg_coverage,
+        "facilities": facilities,
+        "top_capabilities": top_capabilities,
+    }
+
+
+def build_gap_analysis() -> Dict[str, Any]:
+    gap_entries = load_json("gap_analysis.json")
+    deserts = []
+    total_population = 0
+    gap_scores = []
+
+    for idx, entry in enumerate(gap_entries):
+        gap_score = float(entry.get("gap_score", 0.0))
+        demand_count = int(entry.get("demand_count", 0))
+        population = int(max(10000, (demand_count + 1) * 60000 * max(gap_score, 0.2)))
+        nearest_km = int(20 + gap_score * 120)
+
+        deserts.append(
+            {
+                "id": f"g{idx + 1}",
+                "region_name": entry.get("region_name", "Unknown"),
+                "lat": float(entry.get("lat", 0.0)),
+                "lng": float(entry.get("lng", 0.0)),
+                "gap_score": gap_score,
+                "population_affected": population,
+                "missing_capabilities": [
+                    format_capability(cap)
+                    for cap in entry.get("missing_capabilities", [])
+                ],
+                "nearest_facility_km": nearest_km,
+            }
+        )
+        total_population += population
+        gap_scores.append(gap_score)
+
+    avg_gap_score = sum(gap_scores) / len(gap_scores) if gap_scores else 0.0
+
+    return {
+        "deserts": deserts,
+        "total_population_underserved": total_population,
+        "avg_gap_score": avg_gap_score,
+    }
+
+
+def build_map_data() -> Dict[str, Any]:
+    map_entries = load_json("map_data.json")
+    demand_points = []
+    supply_points = []
+
+    for entry in map_entries:
+        label = entry.get("label", "")
+        if label.startswith("Demand:"):
+            demand_points.append(
+                {
+                    "lat": float(entry.get("lat", 0.0)),
+                    "lng": float(entry.get("lng", 0.0)),
+                    "intensity": float(entry.get("intensity", 0.0)),
+                }
+            )
+        elif label.startswith("Supply:"):
+            supply_points.append(
+                {
+                    "lat": float(entry.get("lat", 0.0)),
+                    "lng": float(entry.get("lng", 0.0)),
+                    "coverage": int(round(float(entry.get("intensity", 0.0)) * 100)),
+                }
+            )
+
+    return {"demand_points": demand_points, "supply_points": supply_points}
+
+
+def build_recommendations() -> Dict[str, Any]:
+    recommendations = load_json("planner_recommendations.json")
+    formatted = []
+
+    for idx, rec in enumerate(recommendations):
+        missing_caps = [
+            format_capability(cap) for cap in rec.get("missing_capabilities", [])
+        ]
+        cost = int(rec.get("estimated_cost_usd", 0))
+        lives_saved = max(5, min(60, 8 * max(len(missing_caps), 1)))
+
+        formatted.append(
+            {
+                "id": f"r{idx + 1}",
+                "region": rec.get("region_name", "Unknown"),
+                "action": rec.get("recommended_actions", ["Capacity upgrade"])[0],
+                "capability_needed": ", ".join(missing_caps) or "Capacity upgrades",
+                "estimated_impact": rec.get("expected_impact", ""),
+                "roi": f"${cost / 1000:.0f}K",
+                "priority": rec.get("priority", "medium"),
+                "lives_saved_per_year": lives_saved,
+            }
+        )
+
+    return {"recommendations": formatted}
 
 
 def _use_legacy_output() -> bool:
@@ -320,6 +544,31 @@ def get_trace(trace_id: str):
             "llm_steps": get_trace_steps(trace_id),
         }
     )
+
+
+@app.route("/data/demand", methods=["GET"])
+def data_demand():
+    return jsonify(build_demand_data())
+
+
+@app.route("/data/supply", methods=["GET"])
+def data_supply():
+    return jsonify(build_supply_data())
+
+
+@app.route("/data/gap", methods=["GET"])
+def data_gap():
+    return jsonify(build_gap_analysis())
+
+
+@app.route("/data/map", methods=["GET"])
+def data_map():
+    return jsonify(build_map_data())
+
+
+@app.route("/data/recommendations", methods=["GET"])
+def data_recommendations():
+    return jsonify(build_recommendations())
 
 
 if __name__ == "__main__":
