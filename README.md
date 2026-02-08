@@ -84,6 +84,7 @@ Databricks Vector Search (optional):
 - Set `DATABRICKS_HOST` and `DATABRICKS_TOKEN`
 - Set `DATABRICKS_VECTOR_SEARCH_ENDPOINT`
 - Set `DATABRICKS_VECTOR_SEARCH_INDEX`
+Databricks SQL (optional): `pip install -r backend/requirements-databricks.txt`
 
 Text2SQL (Genie-style) endpoint:
 
