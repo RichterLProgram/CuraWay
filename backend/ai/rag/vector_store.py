@@ -2,18 +2,19 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import lancedb
 
+from backend.config.runtime_paths import get_vectorstore_dir
 logger = logging.getLogger(__name__)
 
 
 class VectorStore:
     """LanceDB-based vector storage with persistence."""
 
-    def __init__(self, db_path: str = "./backend/data/vectors") -> None:
-        self.db_path = Path(db_path)
+    def __init__(self, db_path: Optional[str] = None) -> None:
+        self.db_path = Path(db_path) if db_path else get_vectorstore_dir()
         self.db_path.mkdir(parents=True, exist_ok=True)
         self.db = lancedb.connect(str(self.db_path))
         logger.info("Vector store initialized at %s", self.db_path)
@@ -36,6 +37,10 @@ class VectorStore:
         self, table_name: str, query_vector: List[float], top_k: int = 5
     ) -> List[Dict]:
         """Search for similar documents."""
+        if table_name not in self.db.table_names():
+            raise FileNotFoundError(
+                "No index found; run /api/rag/index first."
+            )
         try:
             table = self.db.open_table(table_name)
             return table.search(query_vector).limit(top_k).to_list()

@@ -74,6 +74,9 @@ def _export_mlflow(trace_id: str, event: Dict[str, Any]) -> None:
     except Exception:
         return
     try:
+        from backend.config.runtime_paths import get_mlflow_tracking_uri
+
+        mlflow.set_tracking_uri(get_mlflow_tracking_uri())
         mlflow.set_experiment("trace-events")
         with mlflow.start_run(run_name=trace_id):
             mlflow.log_dict(event, f"trace_{trace_id}.json")

@@ -19,6 +19,7 @@ pip install -r requirements.txt
 ```bash
 uvicorn backend.api.server:app --host 0.0.0.0 --port 8000
 ```
+On Render, set `APP_DATA_DIR=/tmp/cancercompass` (default) or mount a disk and set `APP_DATA_DIR=/opt/data`.
 
 ### 3. Upload a dataset
 ```bash

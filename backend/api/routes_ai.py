@@ -3,30 +3,35 @@ from __future__ import annotations
 import json
 import logging
 import time
-from pathlib import Path
 from typing import Dict, List, Optional
 
-import mlflow
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from backend.ai.orchestrator import MedicalOrchestrator
 from backend.ai.rag.indexer import DocumentIndexer
+from backend.config.runtime_paths import get_mlflow_dir, get_mlflow_tracking_uri
 from src.ai.openai_client import DEFAULT_OPENAI_MODEL
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["ai"])
 
-MLFLOW_DIR = Path("./backend/mlruns")
 MLFLOW_EXPERIMENT = "CancerCompass-Demo"
+MLFLOW_DIR = get_mlflow_dir()
 
-try:
-    MLFLOW_DIR.mkdir(parents=True, exist_ok=True)
-    mlflow.set_tracking_uri(f"file:{MLFLOW_DIR.as_posix()}")
-    mlflow.set_experiment(MLFLOW_EXPERIMENT)
-    logger.info("MLflow initialized at %s", MLFLOW_DIR)
-except Exception as exc:  # pragma: no cover - non-critical init
-    logger.warning("MLflow initialization failed (non-critical): %s", exc)
+try:  # pragma: no cover - optional dependency
+    import mlflow  # type: ignore
+except Exception as exc:  # pragma: no cover - non-critical import
+    mlflow = None
+    logger.warning("MLflow import failed (non-critical): %s", exc)
+
+if mlflow is not None:
+    try:
+        mlflow.set_tracking_uri(get_mlflow_tracking_uri())
+        mlflow.set_experiment(MLFLOW_EXPERIMENT)
+        logger.info("MLflow initialized at %s", MLFLOW_DIR)
+    except Exception as exc:  # pragma: no cover - non-critical init
+        logger.warning("MLflow initialization failed (non-critical): %s", exc)
 
 
 class AskRequest(BaseModel):
@@ -64,38 +69,42 @@ async def ask_question(request: AskRequest) -> Dict:
     dataset_id = request.dataset_id or ""
 
     try:
-        with mlflow.start_run(run_name=f"ask_{int(time.time())}"):
-            mlflow.log_param("question", request.question[:100])
-            mlflow.log_param("mode", request.mode)
-            mlflow.log_param("model_name", DEFAULT_OPENAI_MODEL)
-            if dataset_id:
-                mlflow.log_param("dataset_id", dataset_id)
-
-            orchestrator = MedicalOrchestrator(dataset_id=dataset_id or None)
-            result = orchestrator.run(
-                question=request.question,
-                mode=request.mode or "rag",
-                context=request.context or "",
-            )
-
-            latency_ms = (time.time() - start_time) * 1000
-            mlflow.log_metric("latency_ms", latency_ms)
-            mlflow.log_metric("retrieved_chunks", len(result["sources"]))
-            mlflow.log_metric("answer_length", len(result["answer"]))
-
-            mlflow.set_tag("source", "orchestrator")
-            mlflow.set_tag("databricks_ready", "true")
-
-            if result["sources"]:
-                chunks_artifact = json.dumps(result["sources"], indent=2)
-                mlflow.log_text(chunks_artifact, "retrieved_chunks.json")
-
-            result["metadata"]["latency_ms"] = latency_ms
-            return result
-
+        orchestrator = MedicalOrchestrator(dataset_id=dataset_id or None)
+        result = orchestrator.run(
+            question=request.question,
+            mode=request.mode or "rag",
+            context=request.context or "",
+        )
     except Exception as exc:
         logger.error("Ask endpoint failed: %s", exc, exc_info=True)
         raise HTTPException(status_code=500, detail=str(exc))
+
+    latency_ms = (time.time() - start_time) * 1000
+    result["metadata"]["latency_ms"] = latency_ms
+
+    if mlflow is not None:
+        try:
+            with mlflow.start_run(run_name=f"ask_{int(time.time())}"):
+                mlflow.log_param("question", request.question[:100])
+                mlflow.log_param("mode", request.mode)
+                mlflow.log_param("model_name", DEFAULT_OPENAI_MODEL)
+                if dataset_id:
+                    mlflow.log_param("dataset_id", dataset_id)
+
+                mlflow.log_metric("latency_ms", latency_ms)
+                mlflow.log_metric("retrieved_chunks", len(result["sources"]))
+                mlflow.log_metric("answer_length", len(result["answer"]))
+
+                mlflow.set_tag("source", "orchestrator")
+                mlflow.set_tag("databricks_ready", "true")
+
+                if result["sources"]:
+                    chunks_artifact = json.dumps(result["sources"], indent=2)
+                    mlflow.log_text(chunks_artifact, "retrieved_chunks.json")
+        except Exception as exc:  # pragma: no cover - non-critical logging
+            logger.warning("MLflow logging failed (non-critical): %s", exc)
+
+    return result
 
 
 @router.post("/rag/index")
@@ -140,6 +149,8 @@ async def query_rag(request: QueryRequest) -> List[Dict]:
             }
             for result in results
         ]
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
     except Exception as exc:
         logger.error("RAG query failed: %s", exc, exc_info=True)
         raise HTTPException(status_code=500, detail=str(exc))
@@ -148,6 +159,8 @@ async def query_rag(request: QueryRequest) -> List[Dict]:
 @router.get("/mlflow/recent")
 async def get_recent_mlflow_runs(n: int = 20) -> List[Dict]:
     """Retrieve recent MLflow runs."""
+    if mlflow is None:
+        return []
     try:
         client = mlflow.tracking.MlflowClient()
         experiment = client.get_experiment_by_name(MLFLOW_EXPERIMENT)

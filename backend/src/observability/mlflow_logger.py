@@ -6,6 +6,7 @@ import os
 import tempfile
 from typing import Any, Dict, Optional, Tuple
 
+from backend.config.runtime_paths import get_mlflow_tracking_uri
 from src.observability.trace_store import export_trace, get_trace_steps
 
 logger = logging.getLogger(__name__)
@@ -25,6 +26,10 @@ def log_trace(
     outputs = outputs or {}
     params = params or {}
     try:
+        try:
+            mlflow.set_tracking_uri(get_mlflow_tracking_uri())
+        except Exception as exc:  # pragma: no cover - non-critical init
+            logger.warning("MLflow tracking uri setup failed: %s", exc)
         experiment = os.getenv("MLFLOW_EXPERIMENT", "CancerCompass")
         mlflow.set_experiment(experiment)
         with mlflow.start_run(run_name=trace_id):
