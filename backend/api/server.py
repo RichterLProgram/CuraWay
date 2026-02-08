@@ -4,9 +4,13 @@ import os
 from pathlib import Path
 from typing import Dict
 
-from asgiref.wsgi import WsgiToAsgi
-from flask import Flask, jsonify, request, send_from_directory
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from flask import Flask, jsonify, request
 from flask_cors import CORS
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.wsgi import WSGIMiddleware
 
 from src.demand.fallback_parse import parse_demand_fallback
 from src.demand.profile_extractor import extract_demand_from_text
@@ -25,6 +29,7 @@ from src.validation.anomaly_agent import validate_supply
 
 
 STATIC_DIR = Path(__file__).resolve().parents[1] / "static"
+INDEX_FILE = STATIC_DIR / "index.html"
 
 app = Flask(__name__)
 CORS(app)
@@ -46,19 +51,6 @@ def _apply_legacy_flag(payload: Dict, legacy: bool) -> Dict:
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "healthy", "service": "HealthGrid AI"})
-
-
-@app.route("/api/health", methods=["GET"])
-def api_health():
-    return jsonify({"status": "ok"})
-
-
-@app.route("/", methods=["GET"])
-def root():
-    index_path = STATIC_DIR / "index.html"
-    if index_path.exists():
-        return send_from_directory(STATIC_DIR, "index.html")
-    return jsonify({"detail": "Frontend not built"}), 200
 
 
 @app.route("/parse/demand", methods=["POST"])
@@ -340,9 +332,57 @@ def get_trace(trace_id: str):
     )
 
 
-flask_app = app
-app = WsgiToAsgi(flask_app)
+def _static_debug_payload() -> Dict[str, str]:
+    return {
+        "detail": "Frontend not built",
+        "expected_static_dir": str(STATIC_DIR),
+        "expected_index": str(INDEX_FILE),
+    }
+
+
+fastapi_app = FastAPI()
+
+
+@fastapi_app.get("/api/health")
+async def api_health() -> Dict[str, str]:
+    return {"status": "ok"}
+
+
+fastapi_app.mount("/api", WSGIMiddleware(app))
+
+
+@fastapi_app.get("/")
+async def root() -> JSONResponse | FileResponse:
+    if INDEX_FILE.exists():
+        return FileResponse(INDEX_FILE)
+    return JSONResponse(_static_debug_payload(), status_code=200)
+
+
+if STATIC_DIR.exists():
+    fastapi_app.mount(
+        "/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static"
+    )
+
+
+@fastapi_app.exception_handler(StarletteHTTPException)
+async def spa_fallback(
+    request: Request, exc: StarletteHTTPException
+) -> JSONResponse | FileResponse:
+    if exc.status_code == 404 and not request.url.path.startswith("/api"):
+        if INDEX_FILE.exists():
+            return FileResponse(INDEX_FILE)
+        return JSONResponse(_static_debug_payload(), status_code=200)
+    return JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
+
+
+app = fastapi_app
 
 
 if __name__ == "__main__":
-    flask_app.run(debug=True, port=5000)
+    import uvicorn
+
+    uvicorn.run(
+        "backend.api.server:app",
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", "8000")),
+    )
