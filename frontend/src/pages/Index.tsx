@@ -27,6 +27,23 @@ const Index = () => {
 
   const actionPlan: ActionPlan | null = useMemo(() => {
     if (!data) return null;
+    if (data.plannerEngine?.action_plan) {
+      const plan = data.plannerEngine.action_plan;
+      return {
+        region: plan.region,
+        priority: plan.priority,
+        estimatedCost: plan.estimated_cost,
+        capexCost: plan.capex_cost,
+        opexCost: plan.opex_cost,
+        impact: plan.impact,
+        actions: plan.actions,
+        timeline: plan.timeline,
+        risks: plan.risks,
+        confidence: plan.confidence,
+        dependencies: plan.dependencies,
+      };
+    }
+
     const region = selectedRegion ?? topDeserts[0]?.region_name;
     const recommendation =
       data.recommendations.recommendations.find((rec) => rec.region === region) ??

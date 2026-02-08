@@ -18,19 +18,27 @@ const DemoInsights = ({
 }: DemoInsightsProps) => {
   if (!data) return null;
 
-  const topDeserts = [...data.gap.deserts]
-    .sort((a, b) => b.gap_score - a.gap_score)
-    .slice(0, 3);
+  const topDeserts = data.plannerEngine?.hotspots?.length
+    ? data.plannerEngine.hotspots.slice(0, 3)
+    : [...data.gap.deserts].sort((a, b) => b.gap_score - a.gap_score).slice(0, 3);
 
   const selectedDesert =
-    data.gap.deserts.find((d) => d.region_name === selectedRegion) ??
-    topDeserts[0];
+    (data.plannerEngine?.hotspots?.length
+      ? data.plannerEngine.hotspots.find((d) => d.region === selectedRegion)
+      : data.gap.deserts.find((d) => d.region_name === selectedRegion)) ?? topDeserts[0];
 
-  const summary = selectedDesert
-    ? `AI flags ${selectedDesert.region_name} with a ${(selectedDesert.gap_score * 100).toFixed(
-        0
-      )}% gap score and ${selectedDesert.population_affected.toLocaleString()} people underserved.`
-    : "AI insights will appear once a hotspot is selected.";
+  const selectedRegionName =
+    selectedDesert && "region_name" in selectedDesert
+      ? selectedDesert.region_name
+      : selectedDesert?.region;
+
+  const summary = data.plannerEngine?.summary
+    ? data.plannerEngine.summary
+    : selectedDesert
+      ? `AI flags ${selectedRegionName} with a ${(
+          selectedDesert.gap_score * 100
+        ).toFixed(0)}% gap score and ${selectedDesert.population_affected.toLocaleString()} people underserved.`
+      : "AI insights will appear once a hotspot is selected.";
 
   return (
     <div className={`space-y-6 ${className ?? ""}`}>
@@ -41,15 +49,23 @@ const DemoInsights = ({
         <div className="mt-4 grid gap-3">
           {topDeserts.map((desert) => (
             <button
-              key={desert.region_name}
-              onClick={() => onSelectRegion(desert.region_name)}
+              key={"region_name" in desert ? desert.region_name : desert.region}
+              onClick={() =>
+                onSelectRegion(
+                  "region_name" in desert ? desert.region_name : desert.region
+                )
+              }
               className={`rounded-xl border px-4 py-3 text-left transition-all ${
-                selectedDesert?.region_name === desert.region_name
+                ("region_name" in desert
+                  ? selectedDesert?.region_name === desert.region_name
+                  : selectedDesert?.region === desert.region)
                   ? "border-foreground/60 bg-foreground text-background"
                   : "border-border/60 bg-transparent hover:border-foreground/40"
               }`}
             >
-              <div className="text-sm font-semibold">{desert.region_name}</div>
+              <div className="text-sm font-semibold">
+                {"region_name" in desert ? desert.region_name : desert.region}
+              </div>
               <div className="mt-1 text-xs opacity-70">
                 Gap {(desert.gap_score * 100).toFixed(0)}% ·{" "}
                 {desert.population_affected.toLocaleString()} people

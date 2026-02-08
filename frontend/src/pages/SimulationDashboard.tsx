@@ -13,8 +13,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { usePlannerEngine } from "@/hooks/use-planner-engine";
 
-const scenarios = {
+const fallbackScenarios = {
   Low: {
     deltas: { coverage: 12, underserved: 62, roi: "3.4 yrs" },
     demandImpact: [
@@ -68,15 +69,35 @@ const scenarios = {
   },
 } as const;
 
-const costCurve = [
+const fallbackCostCurve = [
   { scenario: "Low", cost: 350, impact: 18 },
   { scenario: "Balanced", cost: 550, impact: 26 },
   { scenario: "Aggressive", cost: 820, impact: 34 },
 ];
 
 const SimulationDashboard = () => {
-  const [scenario, setScenario] = useState<keyof typeof scenarios>("Balanced");
-  const activeScenario = useMemo(() => scenarios[scenario], [scenario]);
+  const [scenario, setScenario] = useState<keyof typeof fallbackScenarios>(
+    "Balanced"
+  );
+  const { data } = usePlannerEngine();
+  const scenarios = data?.simulation_presets ?? fallbackScenarios;
+  const activeScenario = useMemo(() => scenarios[scenario], [scenario, scenarios]);
+  const costCurve = data?.simulation_presets
+    ? [
+        {
+          scenario: "Low",
+          ...data.simulation_presets.Low.cost_curve,
+        },
+        {
+          scenario: "Balanced",
+          ...data.simulation_presets.Balanced.cost_curve,
+        },
+        {
+          scenario: "Aggressive",
+          ...data.simulation_presets.Aggressive.cost_curve,
+        },
+      ]
+    : fallbackCostCurve;
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-[1400px] mx-auto px-10 pt-10 pb-16 space-y-10">

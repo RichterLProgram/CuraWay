@@ -28,3 +28,7 @@ export function getMapData() {
 export function getPlannerRecommendations() {
   return fetchJson("/data/recommendations");
 }
+
+export function getPlannerEngine() {
+  return fetchJson("/data/planner_engine");
+}

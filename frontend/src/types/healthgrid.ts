@@ -71,3 +71,45 @@ export interface MapData {
 export interface PlannerRecommendations {
   recommendations: Recommendation[];
 }
+
+export interface PlannerHotspot {
+  region: string;
+  gap_score: number;
+  population_affected: number;
+  lat: number;
+  lng: number;
+}
+
+export interface PlannerActionPlan {
+  region: string;
+  priority: "low" | "medium" | "high" | "critical";
+  confidence: "low" | "medium" | "high";
+  estimated_cost: string;
+  capex_cost: string;
+  opex_cost: string;
+  impact: string;
+  actions: string[];
+  timeline: string[];
+  dependencies: string[];
+  risks: string[];
+}
+
+export interface SimulationPreset {
+  coverage_delta: number;
+  underserved_delta: number;
+  roi_window: string;
+  demand_impact: { month: string; baseline: number; simulated: number }[];
+  coverage_shift: { region: string; baseline: number; simulated: number }[];
+  cost_curve: { cost: number; impact: number };
+}
+
+export interface PlannerEngineResponse {
+  summary: string;
+  hotspots: PlannerHotspot[];
+  action_plan: PlannerActionPlan;
+  simulation_presets: {
+    Low: SimulationPreset;
+    Balanced: SimulationPreset;
+    Aggressive: SimulationPreset;
+  };
+}

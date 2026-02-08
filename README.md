@@ -41,6 +41,91 @@ python run_app_bundle.py
 Outputs:
 - `app_shell.json`
 
+## Supply Validation API
+
+Validate supply output against schema + constraints:
+
+```powershell
+curl -X POST http://localhost:5000/validate/supply `
+  -H "Content-Type: application/json" `
+  -d '{\"supply\":{\"facility_id\":\"fac-001\",\"name\":\"Example Hospital\",\"location\":{\"lat\":5.6,\"lng\":-0.1,\"region\":\"Accra\"},\"capabilities\":[\"CT scan\"],\"equipment\":[],\"specialists\":[],\"coverage_score\":80}}'
+```
+
+## Planner API
+
+Generate action cards based on demand/supply:
+
+```powershell
+curl -X POST http://localhost:5000/planner/plan `
+  -H "Content-Type: application/json" `
+  -d '{\"demand\":{\"diagnosis\":\"lung cancer\",\"stage\":\"IV\",\"location\":{\"lat\":5.6,\"lon\":-0.1,\"region\":\"Greater Accra\"},\"urgency\":8,\"required_capabilities\":[\"ONC_GENERAL\",\"IMAGING_CT\"]},\"supply\":[]}'
+```
+
+## Facility Answer API
+
+Answer if a facility can cover required capabilities:
+
+```powershell
+curl -X POST http://localhost:5000/facility/answer `
+  -H "Content-Type: application/json" `
+  -d '{\"facility_id\":\"F-1\",\"required_capability_codes\":[\"IMAGING_CT\"],\"facility\":{\"facility_id\":\"F-1\",\"canonical_capabilities\":[\"IMAGING_CT\"]}}'
+```
+
+## Desert Analytics API
+
+Rank top deserts from demand/supply:
+
+```powershell
+curl -X POST http://localhost:5000/analytics/deserts `
+  -H "Content-Type: application/json" `
+  -d '{\"demands\":[{\"diagnosis\":\"lung cancer\",\"location\":{\"lat\":5.6,\"lon\":-0.1,\"region\":\"Greater Accra\"},\"urgency\":8,\"required_capabilities\":[\"IMAGING_CT\"]}],\"supply\":[]}'
+```
+
+## Desert Score API (Deterministic)
+
+Quantify medical deserts for a specific capability target:
+
+```powershell
+curl -X POST http://localhost:5000/analytics/deserts/score `
+  -H "Content-Type: application/json" `
+  -d '{\"capability_target\":\"IMAGING_CT\",\"region\":{\"lat\":5.6,\"lon\":-0.1,\"radius_km\":200},\"facilities\":[]}'
+```
+
+### Environment
+
+- `LLM_DISABLED=true` uses fixtures for deterministic tests.
+- `MLFLOW_ENABLED=true` enables MLflow export (optional).
+
+## Planner Engine API
+
+Structured planning response for the dashboard:
+
+```powershell
+curl -X GET http://localhost:5000/data/planner_engine
+```
+
+Custom payload:
+
+```powershell
+curl -X POST http://localhost:5000/planner/engine `
+  -H "Content-Type: application/json" `
+  -d '{\"region\":\"North\",\"hotspots\":[],\"baseline_kpis\":{}}'
+```
+
+## Trace Debug API
+
+Fetch step-level trace events:
+
+```powershell
+curl http://localhost:5000/trace/<trace_id>
+```
+
+Fetch trace summary:
+
+```powershell
+curl http://localhost:5000/trace/<trace_id>/summary
+```
+
 ### 3b) Unified Workflow (Flows + Analytics)
 Run both flows and write all analytics outputs in one command.
 

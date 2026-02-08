@@ -19,6 +19,7 @@ from src.demand.profile_extractor import extract_demand_from_text
 from src.intelligence.facility_answer import answer_facility
 from src.intelligence.gap_detection import detect_gaps
 from src.intelligence.planner import plan_actions, plan_from_query
+from src.intelligence.planner_engine import build_planner_response
 from src.analytics.deserts import analyze_deserts
 from src.analytics.desert_scoring import score_deserts
 from src.observability.trace_store import get_trace_steps
@@ -248,6 +249,39 @@ def build_recommendations() -> Dict[str, Any]:
         )
 
     return {"recommendations": formatted}
+
+
+def build_planner_engine_data(trace_id: str) -> Dict[str, Any]:
+    demand = build_demand_data()
+    supply = build_supply_data()
+    gap = build_gap_analysis()
+    recommendations = build_recommendations().get("recommendations", [])
+    hotspots = [
+        {
+            "region": item.get("region_name"),
+            "gap_score": item.get("gap_score"),
+            "population_affected": item.get("population_affected"),
+            "lat": item.get("lat"),
+            "lng": item.get("lng"),
+        }
+        for item in gap.get("deserts", [])
+    ]
+    baseline_kpis = {
+        "demand_total": demand.get("total_count", 0),
+        "avg_coverage": supply.get("avg_coverage", 0),
+        "total_population_underserved": gap.get("total_population_underserved", 0),
+        "avg_gap_score": gap.get("avg_gap_score", 0),
+    }
+    payload = {
+        "region": hotspots[0]["region"] if hotspots else "Region",
+        "demand": demand,
+        "supply": supply,
+        "gap": gap,
+        "hotspots": hotspots,
+        "recommendations": recommendations,
+        "baseline_kpis": baseline_kpis,
+    }
+    return build_planner_response(payload, trace_id=trace_id)
 
 
 def _use_legacy_output() -> bool:
@@ -569,6 +603,20 @@ def data_map():
 @app.route("/data/recommendations", methods=["GET"])
 def data_recommendations():
     return jsonify(build_recommendations())
+
+
+@app.route("/data/planner_engine", methods=["GET"])
+def data_planner_engine():
+    trace_id = create_trace_id()
+    return jsonify(build_planner_engine_data(trace_id))
+
+
+@app.route("/planner/engine", methods=["POST"])
+def planner_engine():
+    payload = request.get_json(silent=True) or {}
+    trace_id = payload.get("trace_id") or create_trace_id()
+    result = build_planner_response(payload, trace_id=trace_id)
+    return jsonify(result)
 
 
 if __name__ == "__main__":

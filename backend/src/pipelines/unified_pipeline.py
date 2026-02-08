@@ -5,6 +5,7 @@ from typing import List
 from src.intelligence.gap_detector import detect_deserts
 from src.intelligence.impact_estimator import estimate_impact
 from src.intelligence.planner import generate_recommendations
+from src.intelligence.planner_engine import build_planner_response
 from src.pipelines.demand_pipeline import run_demand_pipeline
 from src.pipelines.supply_pipeline import run_supply_pipeline
 from src.shared.models import MapPoint
@@ -89,6 +90,39 @@ def run_full_analysis():
         [i.model_dump() for i in impact_estimates],
     )
     write_json("backend/output/data/map_data.json", [p.model_dump() for p in map_points])
+    write_json(
+        "backend/output/data/planner_engine.json",
+        build_planner_response(
+            {
+                "region": deserts[0].region_name if deserts else "Region",
+                "hotspots": [
+                    {
+                        "region": d.region_name,
+                        "gap_score": d.gap_score,
+                        "population_affected": d.demand_count * 60000,
+                        "lat": d.lat,
+                        "lng": d.lng,
+                    }
+                    for d in deserts
+                ],
+                "recommendations": [r.model_dump() for r in recommendations],
+                "baseline_kpis": {
+                    "demand_total": len(demand_results),
+                    "avg_coverage": (
+                        sum(item.coverage_score for item in supply_results)
+                        / max(len(supply_results), 1)
+                    ),
+                    "total_population_underserved": sum(
+                        d.demand_count * 60000 for d in deserts
+                    ),
+                    "avg_gap_score": (
+                        sum(d.gap_score for d in deserts) / max(len(deserts), 1)
+                    ),
+                },
+            },
+            trace_id="pipeline",
+        ),
+    )
 
 
 if __name__ == "__main__":

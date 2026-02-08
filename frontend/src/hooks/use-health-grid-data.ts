@@ -5,6 +5,7 @@ import {
   getGapAnalysis,
   getMapData,
   getPlannerRecommendations,
+  getPlannerEngine,
 } from "@/lib/api";
 import type {
   DemandData,
@@ -12,6 +13,7 @@ import type {
   GapAnalysis,
   MapData,
   PlannerRecommendations,
+  PlannerEngineResponse,
 } from "@/types/healthgrid";
 
 export interface HealthGridData {
@@ -20,16 +22,19 @@ export interface HealthGridData {
   gap: GapAnalysis;
   map: MapData;
   recommendations: PlannerRecommendations;
+  plannerEngine?: PlannerEngineResponse;
 }
 
 async function fetchHealthGridData(): Promise<HealthGridData> {
-  const [demand, supply, gap, map, recommendations] = await Promise.all([
+  const [demand, supply, gap, map, recommendations, plannerEngine] =
+    await Promise.all([
     getDemandData(),
     getSupplyData(),
     getGapAnalysis(),
     getMapData(),
     getPlannerRecommendations(),
-  ]);
+      getPlannerEngine(),
+    ]);
 
   return {
     demand: demand as DemandData,
@@ -37,6 +42,7 @@ async function fetchHealthGridData(): Promise<HealthGridData> {
     gap: gap as GapAnalysis,
     map: map as MapData,
     recommendations: recommendations as PlannerRecommendations,
+    plannerEngine: plannerEngine as PlannerEngineResponse,
   };
 }
 
