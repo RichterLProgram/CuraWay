@@ -351,8 +351,8 @@ async def api_health() -> Dict[str, str]:
 fastapi_app.mount("/api", WSGIMiddleware(app))
 
 
-@fastapi_app.get("/")
-async def root() -> JSONResponse | FileResponse:
+@fastapi_app.get("/", response_model=None)
+async def root():
     if INDEX_FILE.exists():
         return FileResponse(INDEX_FILE)
     return JSONResponse(_static_debug_payload(), status_code=200)
@@ -365,9 +365,7 @@ if STATIC_DIR.exists():
 
 
 @fastapi_app.exception_handler(StarletteHTTPException)
-async def spa_fallback(
-    request: Request, exc: StarletteHTTPException
-) -> JSONResponse | FileResponse:
+async def spa_fallback(request: Request, exc: StarletteHTTPException):
     if exc.status_code == 404 and not request.url.path.startswith("/api"):
         if INDEX_FILE.exists():
             return FileResponse(INDEX_FILE)
