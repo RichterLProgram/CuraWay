@@ -1,0 +1,2 @@
+{"trace_id": "trace-desert-1", "step_name": "desert_score", "timestamp": "2026-02-08T03:11:37.469966+00:00", "inputs_ref": {"facility_count": 3, "capability_target": "IMAGING_CT"}, "outputs_ref": {"score_count": 3}, "citation_ids": [], "notes": ""}
+{"trace_id": "trace-desert-1", "step_name": "desert_score", "timestamp": "2026-02-08T03:37:15.959999+00:00", "inputs_ref": {"facility_count": 3, "capability_target": "IMAGING_CT"}, "outputs_ref": {"score_count": 3}, "citation_ids": [], "notes": ""}
