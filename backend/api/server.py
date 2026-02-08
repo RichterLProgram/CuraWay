@@ -344,8 +344,18 @@ fastapi_app = FastAPI()
 
 
 @fastapi_app.get("/api/health")
-async def api_health() -> Dict[str, str]:
-    return {"status": "ok"}
+async def api_health() -> Dict[str, object]:
+    return {"status": "ok", "ok": True}
+
+
+@fastapi_app.get("/api")
+async def api_root() -> Dict[str, object]:
+    return {"status": "ok", "ok": True}
+
+
+@fastapi_app.get("/api/ping")
+async def api_ping() -> Dict[str, object]:
+    return {"status": "ok", "ok": True}
 
 
 fastapi_app.mount("/api", WSGIMiddleware(app))
