@@ -1,7 +1,11 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
-const AGENT_API_BASE_URL =
-  import.meta.env.VITE_AGENT_API_BASE_URL ?? "http://localhost:8000";
+const normalizeBase = (value: string, fallback = "/api") => {
+  const base = (value || fallback).trim();
+  if (!base) return fallback;
+  return base.endsWith("/") ? base.slice(0, -1) : base;
+};
+
+const API_BASE_URL = normalizeBase(import.meta.env.VITE_API_BASE_URL);
+const AGENT_API_BASE_URL = normalizeBase(import.meta.env.VITE_AGENT_API_BASE_URL);
 
 async function fetchJson<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`);
