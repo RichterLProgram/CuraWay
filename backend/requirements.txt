@@ -4,6 +4,7 @@ fastapi
 uvicorn[standard]
 gunicorn
 asgiref
+python-multipart
 pydantic
 pandas
 openai

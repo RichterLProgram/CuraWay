@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import os
+import shutil
+import uuid
 from pathlib import Path
 from typing import Dict
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from flask import Flask, jsonify, request
@@ -356,6 +358,26 @@ async def api_root() -> Dict[str, object]:
 @fastapi_app.get("/api/ping")
 async def api_ping() -> Dict[str, object]:
     return {"status": "ok", "ok": True}
+
+
+@fastapi_app.post("/api/upload/dataset")
+async def upload_dataset(file: UploadFile = File(...)) -> Dict[str, object]:
+    if not file:
+        raise HTTPException(status_code=400, detail={"ok": False, "error": "no file"})
+    uploads_dir = Path("/app/backend/uploads")
+    uploads_dir.mkdir(parents=True, exist_ok=True)
+    suffix = Path(file.filename or "").suffix
+    saved_name = f"{uuid.uuid4().hex}{suffix}"
+    target_path = uploads_dir / saved_name
+    with target_path.open("wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    return {
+        "ok": True,
+        "status": "ok",
+        "message": "uploaded",
+        "filename": saved_name,
+        "original_filename": file.filename,
+    }
 
 
 fastapi_app.mount("/api", WSGIMiddleware(app))
