@@ -5,3 +5,14 @@ pandas
 openai
 pyyaml
 anthropic
+fastapi
+uvicorn
+langchain
+langchain-openai
+langchain-anthropic
+langchain-community
+langchain-text-splitters
+lancedb
+langgraph
+langchain-databricks
+databricks-sdk

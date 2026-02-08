@@ -41,6 +41,35 @@ python run_app_bundle.py
 Outputs:
 - `app_shell.json`
 
+## Agent API (FastAPI)
+
+Run the agent service (FastAPI) on port 8000:
+
+```powershell
+cd backend
+uvicorn agent_api.main:app --reload --port 8000
+```
+
+Build or refresh the RAG index:
+
+```powershell
+cd backend
+python .\scripts\build_rag_index.py
+```
+
+Databricks Vector Search (optional):
+- Set `DATABRICKS_HOST` and `DATABRICKS_TOKEN`
+- Set `DATABRICKS_VECTOR_SEARCH_ENDPOINT`
+- Set `DATABRICKS_VECTOR_SEARCH_INDEX`
+
+Text2SQL (Genie-style) endpoint:
+
+```powershell
+curl -X POST http://localhost:8000/agent/text2sql `
+  -H "Content-Type: application/json" `
+  -d '{\"question\":\"Count facilities by region\",\"schema\":\"facilities(id, name, region)\"}'
+```
+
 ## Supply Validation API
 
 Validate supply output against schema + constraints:
