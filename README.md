@@ -5,6 +5,28 @@
 - Set `OPENAI_API_KEY` via runtime env (z.B. Docker/Render).
 - `backend/config/openai_api_key.txt` is excluded from Docker build context.
 
+## Demo-Ready Setup
+
+### Docker (empfohlen, Render-aligned)
+```bash
+docker build -t demo-app .
+docker run -p 8000:8000 demo-app
+```
+
+Health check:
+```bash
+curl http://localhost:8000/api/health
+```
+
+### Lokal (Windows/mac/Linux)
+Empfohlen: Python 3.12 und frische venv.
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r backend/requirements.txt
+python backend/scripts/smoke_test.py
+```
+
 ## Quick Start
 
 ### 1) Patient Flow (CancerCompass)
