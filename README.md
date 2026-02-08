@@ -1,5 +1,10 @@
 # CancerCompass
 
+## Docker Secrets
+
+- Set `OPENAI_API_KEY` via runtime env (z.B. Docker/Render).
+- `backend/config/openai_api_key.txt` is excluded from Docker build context.
+
 ## Quick Start
 
 ### 1) Patient Flow (CancerCompass)
