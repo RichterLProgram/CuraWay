@@ -199,3 +199,29 @@ export interface ProvenanceResponse {
   provenance_id: string;
   payload: Record<string, unknown>;
 }
+
+export interface HotspotReportResponse {
+  summary: string;
+  hotspots: PlannerHotspot[];
+  action_plan: PlannerActionPlan;
+  simulation_presets: {
+    Low: SimulationPreset;
+    Balanced: SimulationPreset;
+    Aggressive: SimulationPreset;
+  };
+  agent_report: {
+    answer: string;
+    citations: { source: string; content: string; score?: number }[];
+    council: AgentCouncilOutput[];
+    risk_flags: string[];
+    trace_id: string;
+    provenance_id: string;
+  };
+  simulation: {
+    simulation_presets: {
+      Low: SimulationPreset;
+      Balanced: SimulationPreset;
+      Aggressive: SimulationPreset;
+    };
+  };
+}

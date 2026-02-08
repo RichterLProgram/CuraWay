@@ -4,9 +4,10 @@ pydantic
 pandas
 openai
 pyyaml
+python-dotenv
 anthropic
 fastapi
-uvicorn
+uvicorn[standard]
 langchain
 langchain-openai
 langchain-anthropic

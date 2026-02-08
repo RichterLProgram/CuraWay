@@ -82,8 +82,50 @@ const SimulationDashboard = () => {
   );
   const { data } = usePlannerEngine();
   const { data: agentScenario } = useAgentScenario(data?.action_plan ?? null);
-  const scenarios = agentScenario?.simulation_presets ?? data?.simulation_presets ?? fallbackScenarios;
-  const activeScenario = useMemo(() => scenarios[scenario], [scenario, scenarios]);
+  const normalizePresets = (presets: typeof data extends undefined ? undefined : typeof data["simulation_presets"]) => {
+    if (!presets) return null;
+    const sample = presets.Low as any;
+    if (sample?.coverage_delta !== undefined) {
+      return {
+        Low: {
+          deltas: {
+            coverage: sample.coverage_delta,
+            underserved: sample.underserved_delta,
+            roi: sample.roi_window,
+          },
+          demandImpact: sample.demand_impact,
+          coverageShift: sample.coverage_shift,
+        },
+        Balanced: {
+          deltas: {
+            coverage: presets.Balanced.coverage_delta,
+            underserved: presets.Balanced.underserved_delta,
+            roi: presets.Balanced.roi_window,
+          },
+          demandImpact: presets.Balanced.demand_impact,
+          coverageShift: presets.Balanced.coverage_shift,
+        },
+        Aggressive: {
+          deltas: {
+            coverage: presets.Aggressive.coverage_delta,
+            underserved: presets.Aggressive.underserved_delta,
+            roi: presets.Aggressive.roi_window,
+          },
+          demandImpact: presets.Aggressive.demand_impact,
+          coverageShift: presets.Aggressive.coverage_shift,
+        },
+      };
+    }
+    return presets as typeof fallbackScenarios;
+  };
+
+  const normalizedPresets =
+    normalizePresets(agentScenario?.simulation_presets ?? data?.simulation_presets) ??
+    fallbackScenarios;
+  const activeScenario = useMemo(
+    () => normalizedPresets[scenario],
+    [scenario, normalizedPresets]
+  );
   const activePresets = agentScenario?.simulation_presets ?? data?.simulation_presets;
   const costCurve = activePresets
     ? [

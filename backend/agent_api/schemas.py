@@ -14,7 +14,7 @@ class AgentRunRequest(BaseModel):
     provider: Literal["openai"] = "openai"
     model: Optional[str] = None
     top_k: int = Field(4, ge=1, le=20)
-    enable_rag: bool = True
+    enable_rag: bool = False
     system_prompt: Optional[str] = None
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
@@ -117,6 +117,25 @@ class RealtimeStatusResponse(BaseModel):
 class ProvenanceResponse(BaseModel):
     provenance_id: str
     payload: Dict[str, Any]
+
+
+class HotspotReportRequest(BaseModel):
+    hotspot: Dict[str, Any]
+    demand: Dict[str, Any] = Field(default_factory=dict)
+    supply: Dict[str, Any] = Field(default_factory=dict)
+    gap: Dict[str, Any] = Field(default_factory=dict)
+    recommendations: List[Dict[str, Any]] = Field(default_factory=list)
+    baseline_kpis: Dict[str, Any] = Field(default_factory=dict)
+    trace_id: Optional[str] = None
+
+
+class HotspotReportResponse(BaseModel):
+    summary: str
+    hotspots: List[Dict[str, Any]]
+    action_plan: Dict[str, Any]
+    simulation_presets: Dict[str, Any]
+    agent_report: Dict[str, Any]
+    simulation: Dict[str, Any]
 
 
 class ActionGraphRequest(BaseModel):

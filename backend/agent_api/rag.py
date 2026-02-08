@@ -6,11 +6,8 @@ from pathlib import Path
 from typing import List, Tuple
 
 from langchain_core.documents import Document
-import lancedb
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import LanceDB
-from langchain_databricks import DatabricksVectorSearch
 
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
@@ -29,7 +26,15 @@ def _databricks_enabled() -> bool:
     )
 
 
-def _databricks_store() -> DatabricksVectorSearch:
+def _databricks_store():
+    try:
+        from langchain_databricks import DatabricksVectorSearch  # type: ignore
+    except Exception as exc:  # pragma: no cover - optional dependency
+        raise RuntimeError(
+            "Databricks Vector Search is not installed. "
+            "Install with: python -m pip install langchain-databricks"
+        ) from exc
+
     endpoint = os.getenv("DATABRICKS_VECTOR_SEARCH_ENDPOINT", "")
     index_name = os.getenv("DATABRICKS_VECTOR_SEARCH_INDEX", "")
     if not endpoint or not index_name:
@@ -85,7 +90,18 @@ def _split_documents(documents: List[Document]) -> List[Document]:
     return splitter.split_documents(documents)
 
 
-def build_vector_store() -> LanceDB:
+def _load_lancedb():
+    try:
+        import lancedb  # type: ignore
+        from langchain_community.vectorstores import LanceDB  # type: ignore
+    except Exception as exc:  # pragma: no cover - optional dependency
+        raise RuntimeError(
+            "LanceDB is not installed. Install with: python -m pip install lancedb"
+        ) from exc
+    return lancedb, LanceDB
+
+
+def build_vector_store():
     if _rag_disabled():
         raise RuntimeError("RAG is disabled via RAG_DISABLED=true")
 
@@ -95,6 +111,7 @@ def build_vector_store() -> LanceDB:
 
     chunks = _split_documents(documents)
     embeddings = OpenAIEmbeddings()
+    lancedb, LanceDB = _load_lancedb()
     db = lancedb.connect(str(PERSIST_DIR))
     return LanceDB.from_documents(
         documents=chunks,
@@ -104,8 +121,9 @@ def build_vector_store() -> LanceDB:
     )
 
 
-def load_vector_store() -> LanceDB:
+def load_vector_store():
     embeddings = OpenAIEmbeddings()
+    lancedb, LanceDB = _load_lancedb()
     db = lancedb.connect(str(PERSIST_DIR))
     return LanceDB(connection=db, table_name=TABLE_NAME, embedding=embeddings)
 

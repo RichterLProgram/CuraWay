@@ -8,6 +8,7 @@ import { usePolicyOptimization } from "@/hooks/use-policy-optimization";
 import { useRealtimeStatus } from "@/hooks/use-realtime-status";
 import { useRouting } from "@/hooks/use-routing";
 import KineticDotsLoader from "@/components/ui/kinetic-dots-loader";
+import { DatasetUpload } from "@/components/DatasetUpload";
 import { ParticleButton } from "@/components/ui/particle-button";
 import InteractiveMap from "@/components/InteractiveMap";
 import DemoInsights from "@/components/DemoInsights";
@@ -51,39 +52,101 @@ const Index = () => {
     }
 
     const region = selectedRegion ?? topDeserts[0]?.region_name;
-    const recommendation =
-      data.recommendations.recommendations.find((rec) => rec.region === region) ??
-      data.recommendations.recommendations[0];
+    console.log("🔥 ACTION PLAN FOR:", region, "selectedRegion:", selectedRegion);
+    const recommendation = data.recommendations.recommendations.find(
+      (rec) => rec.region === region
+    );
+    const desert = data.gap.deserts.find((d) => d.region_name === region);
 
-    if (!recommendation) return null;
+    if (!recommendation && !desert) return null;
 
-    const capabilitySteps = recommendation.capability_needed
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
+    const capabilitySteps = recommendation
+      ? recommendation.capability_needed.split(",").map((item) => item.trim()).filter(Boolean)
+      : desert?.missing_capabilities || [];
+
+    // Create varied priority based on gap score
+    const gapScore = desert?.gap_score ?? 0.5;
+    const priority = recommendation?.priority || 
+      (gapScore > 0.75 ? "critical" : (gapScore > 0.6 ? "high" : (gapScore > 0.4 ? "medium" : "low")));
+    
+    console.log("📊", region, "gap:", gapScore, "priority:", priority, "rec:", !!recommendation, "desert:", !!desert);
+    
+    // Vary costs based on gap score and population
+    const baseCost = recommendation?.roi ? 
+      parseInt(recommendation.roi.replace(/[^0-9]/g, "")) : 
+      Math.round(120 + gapScore * 600 + ((desert?.population_affected ?? 0) / 50000) * 100);
+    const estimatedCost = `$${baseCost}K`;
+    
+    // Enhanced impact with coverage gain
+    const popAffected = Math.max(5, Math.round((desert?.population_affected ?? 0) / 1000));
+    const coverageGain = Math.round(10 + gapScore * 30);
+    const impact = recommendation?.estimated_impact || 
+      `Reduce underserved by ~${popAffected}K (+${coverageGain}% coverage)`;
+
+    // Vary action templates based on priority
+    const firstCap = capabilitySteps[0] || 'healthcare capacity';
+    let actionPrefix = "Expand";
+    if (priority === "critical") {
+      const templates = ["Urgent expansion of", "Critical upgrade:", "Immediate deployment of"];
+      actionPrefix = templates[Math.abs(region?.charCodeAt(0) ?? 0) % templates.length];
+    } else if (priority === "high") {
+      const templates = ["Priority upgrade for", "Scale", "Strengthen"];
+      actionPrefix = templates[Math.abs(region?.charCodeAt(0) ?? 0) % templates.length];
+    } else {
+      const templates = ["Expand", "Enhance", "Improve access to"];
+      actionPrefix = templates[Math.abs(region?.charCodeAt(0) ?? 0) % templates.length];
+    }
+    
+    const mainAction = recommendation?.action || `${actionPrefix} ${firstCap}`;
+    const actions = [mainAction, ...capabilitySteps.slice(0, 3)].slice(0, 4);
+    
+    console.log("🎯", region, "action:", mainAction, "baseCost:", baseCost);
+    
+    console.log("🎯", region, "action:", mainAction, "cost:", baseCost);
+
+    // Vary capex/opex based on total cost
+    const capexRatio = 0.70 + (gapScore * 0.1); // 70-80% for capex
+    const capexCost = `$${Math.round(baseCost * capexRatio)}K`;
+    const opexCost = `$${Math.round(baseCost * (1 - capexRatio))}K`;
+
+    // Vary timeline based on priority
+    const timeline = priority === "critical" 
+      ? [
+          "0-1 week: immediate needs assessment",
+          "1-4 weeks: rapid resource deployment",
+          "4-8 weeks: implement and monitor impact",
+        ]
+      : priority === "high"
+      ? [
+          "0-2 weeks: validate demand signals",
+          "2-5 weeks: stakeholder alignment & procurement",
+          "5-10 weeks: deploy resources and track outcomes",
+        ]
+      : [
+          "0-3 weeks: conduct feasibility study",
+          "3-8 weeks: align stakeholders and budget",
+          "8-16 weeks: phased deployment & impact monitoring",
+        ];
+
+    // Vary risks based on gap score and priority
+    const commonRisks = ["Supply chain constraints", "Staffing availability", "Regulatory lead time"];
+    const urgentRisks = ["Rapid deployment challenges", "Resource availability gaps", "Stakeholder coordination"];
+    const risks = priority === "critical" ? urgentRisks : commonRisks;
 
     return {
       region: region ?? "Regional Plan",
-      priority: recommendation.priority,
-      estimatedCost: recommendation.roi,
-      capexCost: "$520K",
-      opexCost: "$180K",
-      impact: recommendation.estimated_impact,
-      actions: [recommendation.action, ...capabilitySteps].slice(0, 4),
-      timeline: [
-        "0-2 weeks: validate demand signals",
-        "2-6 weeks: align stakeholders and budget",
-        "6-12 weeks: deploy resources and monitor impact",
-      ],
-      risks: [
-        "Supply chain constraints",
-        "Staffing availability",
-        "Regulatory lead time",
-      ],
-      confidence: "medium",
+      priority,
+      estimatedCost,
+      capexCost,
+      opexCost,
+      impact,
+      actions,
+      timeline,
+      risks,
+      confidence: priority === "critical" ? "high" : (priority === "high" ? "medium" : "low"),
       dependencies: [
-        "Requires staffing approval",
-        "Supply chain lead time 6–8 weeks",
+        priority === "critical" ? "Urgent executive approval" : "Requires staffing approval",
+        `Supply chain lead time ${priority === "critical" ? "2-4" : "6-8"} weeks`,
         "Regional stakeholder alignment",
       ],
     };
@@ -197,11 +260,16 @@ const Index = () => {
         />
 
         <main className="max-w-[1400px] mx-auto px-10 pt-14 pb-10">
-          {isError && (
-            <div className="mb-4 rounded-xl border border-demand/30 bg-demand/10 px-4 py-3 text-xs text-demand">
-              Backend connection failed. Check the API server and try again.
+          <div className="flex justify-between items-center mb-4">
+            {isError && (
+              <div className="rounded-xl border border-demand/30 bg-demand/10 px-4 py-3 text-xs text-demand">
+                Backend connection failed. Check the API server and try again.
+              </div>
+            )}
+            <div className="ml-auto">
+              <DatasetUpload />
             </div>
-          )}
+          </div>
 
           {isLoading && !data ? (
             <div className="min-h-[70vh] flex items-center justify-center">

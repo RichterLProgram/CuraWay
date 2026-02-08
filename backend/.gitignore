@@ -1,0 +1,29 @@
+# Environment variables (WICHTIG: API Keys nicht committen!)
+.env
+.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Output files
+output/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

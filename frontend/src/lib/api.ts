@@ -94,3 +94,14 @@ export function getRealtimeStatus() {
 export function getProvenance(provenanceId: string) {
   return fetchAgentJson(`/agent/provenance/${provenanceId}`);
 }
+
+export function getHotspotReport(payload: {
+  hotspot: Record<string, unknown>;
+  demand?: Record<string, unknown>;
+  supply?: Record<string, unknown>;
+  gap?: Record<string, unknown>;
+  recommendations?: Array<Record<string, unknown>>;
+  baseline_kpis?: Record<string, unknown>;
+}) {
+  return fetchAgentJson("/agent/hotspot_report", payload);
+}

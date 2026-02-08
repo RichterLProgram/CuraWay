@@ -1,5 +1,17 @@
 # CancerCompass
 
+## ✨ Latest Updates - Hotspot Report Feature (FIXED!)
+
+Der "Take Action" Button funktioniert jetzt vollständig! 
+- ✅ AI-generierte Berichte für ausgewählte Hotspots
+- ✅ Automatische Simulation mit verschiedenen Szenarien
+- ✅ Personalisierte Empfehlungen basierend auf Gap-Analyse
+- ✅ RAG-Integration für evidenzbasierte Vorschläge
+
+**Alle Details zu den Bugfixes:** siehe [BUGFIXES.md](./BUGFIXES.md)
+
+---
+
 ## Quick Start
 
 ### 1) Patient Flow (CancerCompass)

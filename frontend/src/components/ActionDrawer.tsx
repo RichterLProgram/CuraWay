@@ -1,8 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import type {
   ActionGraphResponse,
-  AgentRunResponse,
   CausalImpactResponse,
   PolicyOptimizeResponse,
 } from "@/types/healthgrid";
@@ -26,7 +25,6 @@ interface ActionDrawerProps {
   onClose: () => void;
   plan?: ActionPlan | null;
   actionGraph?: ActionGraphResponse;
-  agentResult?: AgentRunResponse;
   causalImpact?: CausalImpactResponse;
   policyOptimization?: PolicyOptimizeResponse;
 }
@@ -36,22 +34,10 @@ const ActionDrawer = ({
   onClose,
   plan,
   actionGraph,
-  agentResult,
   causalImpact,
   policyOptimization,
 }: ActionDrawerProps) => {
-  const [decision, setDecision] = useState<"review" | "approved" | "rejected">(
-    "review"
-  );
-  const [auditLog, setAuditLog] = useState<string[]>([]);
-
-  const handleDecision = (next: "approved" | "rejected") => {
-    setDecision(next);
-    setAuditLog((prev) => [
-      `${new Date().toLocaleString()} · ${next.toUpperCase()}`,
-      ...prev,
-    ]);
-  };
+  
 
   const criticalPathLabels = useMemo(() => {
     if (!actionGraph) return [];
@@ -232,34 +218,6 @@ const ActionDrawer = ({
             </div>
           )}
 
-          {agentResult && (
-            <div className="glass rounded-2xl p-5">
-              <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                Compliance Notes
-              </div>
-              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                {(agentResult.compliance_notes.length > 0
-                  ? agentResult.compliance_notes
-                  : ["No compliance issues flagged."]
-                ).map((note) => (
-                  <li key={note}>{note}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {agentResult?.provenance_id && (
-            <div className="glass rounded-2xl p-5">
-              <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                Provenance
-              </div>
-              <div className="mt-3 text-sm text-muted-foreground">
-                Provenance ID:{" "}
-                <span className="text-foreground">{agentResult.provenance_id}</span>
-              </div>
-            </div>
-          )}
-
           {causalImpact && (
             <div className="glass rounded-2xl p-5">
               <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
@@ -287,29 +245,6 @@ const ActionDrawer = ({
             </div>
           ) : null}
 
-          <div className="glass rounded-2xl p-5">
-            <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-              Review & Approval
-            </div>
-            <div className="mt-3 flex items-center gap-2">
-              <Button variant="outline" onClick={() => handleDecision("approved")}>
-                Approve
-              </Button>
-              <Button variant="outline" onClick={() => handleDecision("rejected")}>
-                Reject
-              </Button>
-              <div className="text-xs text-muted-foreground">
-                Status: {decision}
-              </div>
-            </div>
-            {auditLog.length > 0 && (
-              <ul className="mt-3 space-y-2 text-xs text-muted-foreground">
-                {auditLog.map((entry) => (
-                  <li key={entry}>{entry}</li>
-                ))}
-              </ul>
-            )}
-          </div>
         </div>
 
         <div className="mt-8 flex items-center gap-3">
