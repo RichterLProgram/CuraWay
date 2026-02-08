@@ -1,0 +1,7 @@
+Facility Document
+Name: Akatsi South Municipal Hospital
+Location: Akatsi, Volta Region, Ghana
+Services: Outpatient services, inpatient services, laboratory, pharmacy, maternal and child health
+Equipment: Laboratory analyzers, ultrasound equipment
+Specialists: General physicians, pediatric nurses
+Capabilities: Public hospital, general medical services, maternal care

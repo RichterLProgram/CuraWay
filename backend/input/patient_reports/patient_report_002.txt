@@ -1,0 +1,9 @@
+Patient Report
+Patient ID: P-002
+Location: Kumasi, Ashanti, Ghana
+Diagnosis: Breast cancer
+Stage: II
+Biomarkers: HER2 positive, ER positive
+Symptoms: Breast lump, fatigue
+Comorbidities: None reported
+Notes: Needs surgical oncology consult and imaging for treatment planning.

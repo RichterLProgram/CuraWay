@@ -1,0 +1,7 @@
+Facility Document
+Name: Accra Specialist Eye Hospital
+Location: 49 Nii Ayi Kushie St, Tantra Hill, Accra, Ghana
+Services: Cataract surgery, glaucoma surgery, retina procedures, pediatric eye care, fundus photography
+Equipment: Optical coherence tomography (OCT), fundus photography equipment, B-scan ultrasound
+Specialists: Ophthalmologists, optometrists, eye surgeons
+Capabilities: Specialized ophthalmology center, outpatient surgical services

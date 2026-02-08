@@ -1,0 +1,7 @@
+Facility Document
+Name: Accra Newtown Islamic Hospital
+Location: Obaakrowa Close, Accra Newtown, Greater Accra, Ghana
+Services: Laboratory tests 24/7, pharmacy services, dialysis center, surgeries in operating theatre
+Equipment: X-ray imaging, ultrasound scanning, operating theatre equipment
+Specialists: General surgeons, laboratory scientists, dialysis nurses
+Capabilities: Inpatient and outpatient services, emergency support, diagnostic imaging, dialysis

@@ -1,0 +1,17 @@
+[
+  {
+    "region_name": "Ashanti",
+    "roi_score": 0.43999999999999995,
+    "time_to_treatment_days": 32
+  },
+  {
+    "region_name": "Greater Accra",
+    "roi_score": 0.32,
+    "time_to_treatment_days": 34
+  },
+  {
+    "region_name": "Northern",
+    "roi_score": 0.37,
+    "time_to_treatment_days": 33
+  }
+]

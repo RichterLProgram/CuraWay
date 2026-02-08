@@ -1,0 +1,7 @@
+Facility Document
+Name: Achimota Hospital
+Location: Accra, Ghana
+Services: General medical services, outpatient consultations
+Equipment: Basic diagnostic equipment
+Specialists: General practitioners
+Capabilities: District hospital, primary care, outpatient services

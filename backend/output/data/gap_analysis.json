@@ -1,0 +1,42 @@
+[
+  {
+    "region_name": "Ashanti",
+    "lat": 7.9465,
+    "lng": -1.0232,
+    "demand_count": 1,
+    "supply_count": 0,
+    "gap_score": 0.2,
+    "missing_capabilities": [
+      "Diagnostic_imaging",
+      "Oncology",
+      "Surgical_oncology"
+    ]
+  },
+  {
+    "region_name": "Greater Accra",
+    "lat": 5.6037,
+    "lng": -0.187,
+    "demand_count": 1,
+    "supply_count": 6,
+    "gap_score": 0.02857142857142857,
+    "missing_capabilities": [
+      "Chemotherapy",
+      "EGFR_targeted_therapy",
+      "Oncology",
+      "Pulmonology"
+    ]
+  },
+  {
+    "region_name": "Northern",
+    "lat": 7.9465,
+    "lng": -1.0232,
+    "demand_count": 1,
+    "supply_count": 1,
+    "gap_score": 0.1,
+    "missing_capabilities": [
+      "Gynecologic_oncology",
+      "Oncology",
+      "Radiation_therapy"
+    ]
+  }
+]

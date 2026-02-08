@@ -1,0 +1,249 @@
+[
+  {
+    "facility_id": "7cd832da82",
+    "name": "Accra Newtown Islamic Hospital Location: Obaakrowa Close, Accra Newtown, Greater Accra, Ghana Services: Laboratory tests 24/7, pharmacy services, dialysis center, surgeries in operating theatre Equipment: X-ray imaging, ultrasound scanning, operating theatre equipment Specialists: General surgeons, laboratory scientists, dialysis nurses Capabilities: Inpatient and outpatient services, emergency support, diagnostic imaging, dialysis",
+    "location": {
+      "lat": 5.6037,
+      "lng": -0.187,
+      "region": "Greater Accra"
+    },
+    "capabilities": [
+      "Diagnostic_imaging",
+      "Dialysis",
+      "Emergency_care",
+      "Inpatient and outpatient services",
+      "Laboratory_services",
+      "Pharmacy",
+      "diagnostic imaging",
+      "dialysis",
+      "emergency support"
+    ],
+    "equipment": [
+      "X-ray imaging",
+      "ultrasound scanning",
+      "operating theatre equipment Specialists: General surgeons",
+      "laboratory scientists",
+      "dialysis nurses Capabilities: Inpatient and outpatient services",
+      "emergency support",
+      "diagnostic imaging",
+      "dialysis"
+    ],
+    "specialists": [
+      "General surgeons",
+      "laboratory scientists",
+      "dialysis nurses Capabilities: Inpatient and outpatient services",
+      "emergency support",
+      "diagnostic imaging",
+      "dialysis"
+    ],
+    "coverage_score": 100.0
+  },
+  {
+    "facility_id": "dbfc592c43",
+    "name": "Accra Specialist Eye Hospital Location: 49 Nii Ayi Kushie St, Tantra Hill, Accra, Ghana Services: Cataract surgery, glaucoma surgery, retina procedures, pediatric eye care, fundus photography Equipment: Optical coherence tomography (OCT), fundus photography equipment, B-scan ultrasound Specialists: Ophthalmologists, optometrists, eye surgeons Capabilities: Specialized ophthalmology center, outpatient surgical services",
+    "location": {
+      "lat": 5.6037,
+      "lng": -0.187,
+      "region": "Greater Accra"
+    },
+    "capabilities": [
+      "Ophthalmology",
+      "Specialized ophthalmology center",
+      "Surgical_services",
+      "outpatient surgical services"
+    ],
+    "equipment": [
+      "Optical coherence tomography (OCT)",
+      "fundus photography equipment",
+      "B-scan ultrasound Specialists: Ophthalmologists",
+      "optometrists",
+      "eye surgeons Capabilities: Specialized ophthalmology center",
+      "outpatient surgical services"
+    ],
+    "specialists": [
+      "Ophthalmologists",
+      "optometrists",
+      "eye surgeons Capabilities: Specialized ophthalmology center",
+      "outpatient surgical services"
+    ],
+    "coverage_score": 68.0
+  },
+  {
+    "facility_id": "898ac8c1a7",
+    "name": "Aisha Hospital Location: Old Airport Road, Tamale, Ghana Services: General surgery, obstetrics and gynecology, diagnostics, emergency care Equipment: X-ray machines, CT scanners, MRI scanners, ultrasound devices Specialists: Surgeons, obstetricians, radiologists, emergency physicians Capabilities: 24/7 emergency care, inpatient and outpatient services, diagnostic imaging",
+    "location": {
+      "lat": 9.4008,
+      "lng": -0.8393,
+      "region": "Northern"
+    },
+    "capabilities": [
+      "24/7 emergency care",
+      "Diagnostic_imaging",
+      "Emergency_care",
+      "Surgical_services",
+      "diagnostic imaging",
+      "inpatient and outpatient services"
+    ],
+    "equipment": [
+      "X-ray machines",
+      "CT scanners",
+      "MRI scanners",
+      "ultrasound devices Specialists: Surgeons",
+      "obstetricians",
+      "radiologists",
+      "emergency physicians Capabilities: 24/7 emergency care",
+      "inpatient and outpatient services",
+      "diagnostic imaging"
+    ],
+    "specialists": [
+      "Surgeons",
+      "obstetricians",
+      "radiologists",
+      "emergency physicians Capabilities: 24/7 emergency care",
+      "inpatient and outpatient services",
+      "diagnostic imaging"
+    ],
+    "coverage_score": 100.0
+  },
+  {
+    "facility_id": "f30d46588b",
+    "name": "Akatsi South Municipal Hospital Location: Akatsi, Volta Region, Ghana Services: Outpatient services, inpatient services, laboratory, pharmacy, maternal and child health Equipment: Laboratory analyzers, ultrasound equipment Specialists: General physicians, pediatric nurses Capabilities: Public hospital, general medical services, maternal care",
+    "location": {
+      "lat": 5.5786,
+      "lng": 0.0865,
+      "region": "Volta"
+    },
+    "capabilities": [
+      "Laboratory_services",
+      "Pharmacy",
+      "Public hospital",
+      "general medical services",
+      "maternal care"
+    ],
+    "equipment": [
+      "Laboratory analyzers",
+      "ultrasound equipment Specialists: General physicians",
+      "pediatric nurses Capabilities: Public hospital",
+      "general medical services",
+      "maternal care"
+    ],
+    "specialists": [
+      "General physicians",
+      "pediatric nurses Capabilities: Public hospital",
+      "general medical services",
+      "maternal care"
+    ],
+    "coverage_score": 72.0
+  },
+  {
+    "facility_id": "f87bebb4d6",
+    "name": "Achimota Hospital Location: Accra, Ghana Services: General medical services, outpatient consultations Equipment: Basic diagnostic equipment Specialists: General practitioners Capabilities: District hospital, primary care, outpatient services",
+    "location": {
+      "lat": 5.6037,
+      "lng": -0.187,
+      "region": "Greater Accra"
+    },
+    "capabilities": [
+      "District hospital",
+      "outpatient services",
+      "primary care"
+    ],
+    "equipment": [
+      "Basic diagnostic equipment Specialists: General practitioners Capabilities: District hospital",
+      "primary care",
+      "outpatient services"
+    ],
+    "specialists": [
+      "General practitioners Capabilities: District hospital",
+      "primary care",
+      "outpatient services"
+    ],
+    "coverage_score": 45.0
+  },
+  {
+    "facility_id": "7d362eaa-813",
+    "name": "109/No 1 Bekwai Rd (Near Mexico Hotel) Takoradi, Ghana",
+    "location": {
+      "lat": 4.9036,
+      "lng": -1.7486,
+      "region": "Western"
+    },
+    "capabilities": [
+      "Has a location at 109/No 1 Bekwai Rd (Near Mexico Hotel) Takoradi, Ghana",
+      "Specialties include HIV, AIDS, PMTCT, Behavior Change Communication, HIV Testing and Counseling, Community Outreach, Stigma Reduction, Hospice / Home Based Care, global health, and public health"
+    ],
+    "equipment": [],
+    "specialists": [
+      "infectiousDiseases",
+      "maternalFetalMedicineOrPerinatology",
+      "publicHealth",
+      "socialAndBehavioralSciences",
+      "hospiceAndPalliativeInternalMedicine",
+      "globalHealthAndInternationalHealth"
+    ],
+    "coverage_score": 34.0
+  },
+  {
+    "facility_id": "9d70e24f-247",
+    "name": "1st Foundation Clinic",
+    "location": {
+      "lat": 7.9465,
+      "lng": -1.0232,
+      "region": "Unknown"
+    },
+    "capabilities": [
+      "Located in Dansoman, Accra, Ghana, opposite Standard Chartered Bank",
+      "Listed as a related place on GhanaBusinessWeb's Iran Clinic page"
+    ],
+    "equipment": [],
+    "specialists": [
+      "internalMedicine"
+    ],
+    "coverage_score": 19.0
+  },
+  {
+    "facility_id": "97d11408-830",
+    "name": "1st Foundation Clinic",
+    "location": {
+      "lat": 5.6037,
+      "lng": -0.187,
+      "region": "Greater Accra"
+    },
+    "capabilities": [],
+    "equipment": [],
+    "specialists": [
+      "internalMedicine"
+    ],
+    "coverage_score": 3.0
+  },
+  {
+    "facility_id": "4c17951e-87e",
+    "name": "1st Foundation Clinic",
+    "location": {
+      "lat": 5.6037,
+      "lng": -0.187,
+      "region": "Greater Accra"
+    },
+    "capabilities": [],
+    "equipment": [],
+    "specialists": [
+      "internalMedicine"
+    ],
+    "coverage_score": 3.0
+  },
+  {
+    "facility_id": "a6ec226d-a88",
+    "name": "1st Foundation Clinic",
+    "location": {
+      "lat": 5.6037,
+      "lng": -0.187,
+      "region": "Greater Accra"
+    },
+    "capabilities": [],
+    "equipment": [],
+    "specialists": [
+      "internalMedicine"
+    ],
+    "coverage_score": 3.0
+  }
+]

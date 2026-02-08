@@ -1,0 +1,74 @@
+[
+  {
+    "profile": {
+      "patient_id": "P-001",
+      "diagnosis": "Non-small cell lung cancer (NSCLC)",
+      "stage": "IV",
+      "biomarkers": [
+        "EGFR positive",
+        "KRAS negative"
+      ],
+      "location": "Accra, Greater Accra, Ghana",
+      "urgency_score": 10
+    },
+    "required_capabilities": [
+      "Chemotherapy",
+      "EGFR_targeted_therapy",
+      "Oncology",
+      "Pulmonology"
+    ],
+    "travel_radius_km": 30,
+    "evidence": [
+      "Non-small cell lung cancer (NSCLC)",
+      "IV",
+      "EGFR positive, KRAS negative"
+    ]
+  },
+  {
+    "profile": {
+      "patient_id": "P-002",
+      "diagnosis": "Breast cancer",
+      "stage": "II",
+      "biomarkers": [
+        "HER2 positive",
+        "ER positive"
+      ],
+      "location": "Kumasi, Ashanti, Ghana",
+      "urgency_score": 5
+    },
+    "required_capabilities": [
+      "Diagnostic_imaging",
+      "Oncology",
+      "Surgical_oncology"
+    ],
+    "travel_radius_km": 60,
+    "evidence": [
+      "Breast cancer",
+      "II",
+      "HER2 positive, ER positive"
+    ]
+  },
+  {
+    "profile": {
+      "patient_id": "P-003",
+      "diagnosis": "Cervical cancer",
+      "stage": "III",
+      "biomarkers": [
+        "HPV positive"
+      ],
+      "location": "Tamale, Northern Region, Ghana",
+      "urgency_score": 8
+    },
+    "required_capabilities": [
+      "Gynecologic_oncology",
+      "Oncology",
+      "Radiation_therapy"
+    ],
+    "travel_radius_km": 30,
+    "evidence": [
+      "Cervical cancer",
+      "III",
+      "HPV positive"
+    ]
+  }
+]

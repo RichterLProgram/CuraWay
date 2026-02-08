@@ -1,0 +1,7 @@
+Facility Document
+Name: Aisha Hospital
+Location: Old Airport Road, Tamale, Ghana
+Services: General surgery, obstetrics and gynecology, diagnostics, emergency care
+Equipment: X-ray machines, CT scanners, MRI scanners, ultrasound devices
+Specialists: Surgeons, obstetricians, radiologists, emergency physicians
+Capabilities: 24/7 emergency care, inpatient and outpatient services, diagnostic imaging

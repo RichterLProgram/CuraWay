@@ -1,0 +1,98 @@
+[
+  {
+    "lat": 5.6037,
+    "lng": -0.187,
+    "intensity": 1.0,
+    "label": "Demand:P-001"
+  },
+  {
+    "lat": 6.6885,
+    "lng": -1.6244,
+    "intensity": 0.5,
+    "label": "Demand:P-002"
+  },
+  {
+    "lat": 9.4008,
+    "lng": -0.8393,
+    "intensity": 0.8,
+    "label": "Demand:P-003"
+  },
+  {
+    "lat": 5.6037,
+    "lng": -0.187,
+    "intensity": 1.0,
+    "label": "Supply:Accra Newtown Islamic Hospital Location: Obaakrowa Close, Accra Newtown, Greater Accra, Ghana Services: Laboratory tests 24/7, pharmacy services, dialysis center, surgeries in operating theatre Equipment: X-ray imaging, ultrasound scanning, operating theatre equipment Specialists: General surgeons, laboratory scientists, dialysis nurses Capabilities: Inpatient and outpatient services, emergency support, diagnostic imaging, dialysis"
+  },
+  {
+    "lat": 5.6037,
+    "lng": -0.187,
+    "intensity": 0.68,
+    "label": "Supply:Accra Specialist Eye Hospital Location: 49 Nii Ayi Kushie St, Tantra Hill, Accra, Ghana Services: Cataract surgery, glaucoma surgery, retina procedures, pediatric eye care, fundus photography Equipment: Optical coherence tomography (OCT), fundus photography equipment, B-scan ultrasound Specialists: Ophthalmologists, optometrists, eye surgeons Capabilities: Specialized ophthalmology center, outpatient surgical services"
+  },
+  {
+    "lat": 9.4008,
+    "lng": -0.8393,
+    "intensity": 1.0,
+    "label": "Supply:Aisha Hospital Location: Old Airport Road, Tamale, Ghana Services: General surgery, obstetrics and gynecology, diagnostics, emergency care Equipment: X-ray machines, CT scanners, MRI scanners, ultrasound devices Specialists: Surgeons, obstetricians, radiologists, emergency physicians Capabilities: 24/7 emergency care, inpatient and outpatient services, diagnostic imaging"
+  },
+  {
+    "lat": 5.5786,
+    "lng": 0.0865,
+    "intensity": 0.72,
+    "label": "Supply:Akatsi South Municipal Hospital Location: Akatsi, Volta Region, Ghana Services: Outpatient services, inpatient services, laboratory, pharmacy, maternal and child health Equipment: Laboratory analyzers, ultrasound equipment Specialists: General physicians, pediatric nurses Capabilities: Public hospital, general medical services, maternal care"
+  },
+  {
+    "lat": 5.6037,
+    "lng": -0.187,
+    "intensity": 0.45,
+    "label": "Supply:Achimota Hospital Location: Accra, Ghana Services: General medical services, outpatient consultations Equipment: Basic diagnostic equipment Specialists: General practitioners Capabilities: District hospital, primary care, outpatient services"
+  },
+  {
+    "lat": 4.9036,
+    "lng": -1.7486,
+    "intensity": 0.34,
+    "label": "Supply:109/No 1 Bekwai Rd (Near Mexico Hotel) Takoradi, Ghana"
+  },
+  {
+    "lat": 7.9465,
+    "lng": -1.0232,
+    "intensity": 0.19,
+    "label": "Supply:1st Foundation Clinic"
+  },
+  {
+    "lat": 5.6037,
+    "lng": -0.187,
+    "intensity": 0.03,
+    "label": "Supply:1st Foundation Clinic"
+  },
+  {
+    "lat": 5.6037,
+    "lng": -0.187,
+    "intensity": 0.03,
+    "label": "Supply:1st Foundation Clinic"
+  },
+  {
+    "lat": 5.6037,
+    "lng": -0.187,
+    "intensity": 0.03,
+    "label": "Supply:1st Foundation Clinic"
+  },
+  {
+    "lat": 7.9465,
+    "lng": -1.0232,
+    "intensity": 0.2,
+    "label": "Desert:Ashanti"
+  },
+  {
+    "lat": 5.6037,
+    "lng": -0.187,
+    "intensity": 0.02857142857142857,
+    "label": "Desert:Greater Accra"
+  },
+  {
+    "lat": 7.9465,
+    "lng": -1.0232,
+    "intensity": 0.1,
+    "label": "Desert:Northern"
+  }
+]
