@@ -14,6 +14,7 @@ import {
   YAxis,
 } from "recharts";
 import { usePlannerEngine } from "@/hooks/use-planner-engine";
+import { useAgentScenario } from "@/hooks/use-agent-scenario";
 
 const fallbackScenarios = {
   Low: {
@@ -80,21 +81,23 @@ const SimulationDashboard = () => {
     "Balanced"
   );
   const { data } = usePlannerEngine();
-  const scenarios = data?.simulation_presets ?? fallbackScenarios;
+  const { data: agentScenario } = useAgentScenario(data?.action_plan ?? null);
+  const scenarios = agentScenario?.simulation_presets ?? data?.simulation_presets ?? fallbackScenarios;
   const activeScenario = useMemo(() => scenarios[scenario], [scenario, scenarios]);
-  const costCurve = data?.simulation_presets
+  const activePresets = agentScenario?.simulation_presets ?? data?.simulation_presets;
+  const costCurve = activePresets
     ? [
         {
           scenario: "Low",
-          ...data.simulation_presets.Low.cost_curve,
+          ...activePresets.Low.cost_curve,
         },
         {
           scenario: "Balanced",
-          ...data.simulation_presets.Balanced.cost_curve,
+          ...activePresets.Balanced.cost_curve,
         },
         {
           scenario: "Aggressive",
-          ...data.simulation_presets.Aggressive.cost_curve,
+          ...activePresets.Aggressive.cost_curve,
         },
       ]
     : fallbackCostCurve;

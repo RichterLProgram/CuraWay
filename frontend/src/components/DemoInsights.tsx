@@ -1,4 +1,11 @@
 import type { HealthGridData } from "@/hooks/use-health-grid-data";
+import type {
+  AgentRunResponse,
+  CausalImpactResponse,
+  PolicyOptimizeResponse,
+  RealtimeStatusResponse,
+  RoutingResponse,
+} from "@/types/healthgrid";
 import { Button } from "@/components/ui/button";
 
 interface DemoInsightsProps {
@@ -7,6 +14,11 @@ interface DemoInsightsProps {
   onSelectRegion: (region: string) => void;
   onTakeAction: () => void;
   className?: string;
+  agentResult?: AgentRunResponse;
+  causalImpact?: CausalImpactResponse;
+  policyOptimization?: PolicyOptimizeResponse;
+  realtimeStatus?: RealtimeStatusResponse;
+  routingStats?: RoutingResponse;
 }
 
 const DemoInsights = ({
@@ -15,6 +27,11 @@ const DemoInsights = ({
   onSelectRegion,
   onTakeAction,
   className,
+  agentResult,
+  causalImpact,
+  policyOptimization,
+  realtimeStatus,
+  routingStats,
 }: DemoInsightsProps) => {
   if (!data) return null;
 
@@ -87,6 +104,131 @@ const DemoInsights = ({
             Try Your Own Dataset
           </Button>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6">
+        <div className="glass rounded-2xl p-6">
+          <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+            Causal Impact
+          </div>
+          {causalImpact ? (
+            <div className="mt-3 space-y-2 text-sm text-muted-foreground">
+              <div>
+                Effect: <span className="text-foreground">{causalImpact.effect}</span>
+              </div>
+              <div>
+                Uplift: <span className="text-foreground">{causalImpact.uplift_pct}%</span>
+              </div>
+              <div>
+                Confidence: <span className="text-foreground">{(causalImpact.confidence * 100).toFixed(0)}%</span>
+              </div>
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">
+              Causal impact will populate once data is available.
+            </p>
+          )}
+        </div>
+
+        <div className="glass rounded-2xl p-6">
+          <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+            Policy Optimization
+          </div>
+          <div className="mt-4 space-y-3 text-sm text-muted-foreground">
+            {policyOptimization?.options?.slice(0, 2).map((option) => (
+              <div key={option.id} className="rounded-xl border border-border/60 p-4">
+                <div className="text-sm font-semibold text-foreground">{option.label}</div>
+                <div className="mt-2">
+                  Coverage +{option.coverage_gain_pct}% · Underserved -{option.underserved_reduction_k}K
+                </div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  Budget ${option.budget.toLocaleString()} · Avg travel {option.avg_travel_minutes} min
+                </div>
+              </div>
+            )) ?? (
+              <p className="text-sm text-muted-foreground">Policy options will appear shortly.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="glass rounded-2xl p-6">
+          <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+            Realtime Feed
+          </div>
+          <div className="mt-3 text-sm text-muted-foreground">
+            Status: <span className="text-foreground">{realtimeStatus?.status ?? "idle"}</span>
+          </div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            Topic: {realtimeStatus?.topic ?? "healthgrid.events"}
+          </div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            Last ingest: {realtimeStatus?.last_ingested_at ?? "—"}
+          </div>
+        </div>
+
+        <div className="glass rounded-2xl p-6">
+          <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+            Routing Insight
+          </div>
+          <div className="mt-3 text-sm text-muted-foreground">
+            Travel time:{" "}
+            <span className="text-foreground">
+              {routingStats?.minutes ? `${routingStats.minutes} min` : "—"}
+            </span>
+          </div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            Source: {routingStats?.source ?? "n/a"}
+          </div>
+        </div>
+      </div>
+
+      <div className="glass rounded-2xl p-6">
+        <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+          AI Council
+        </div>
+        {agentResult ? (
+          <div className="mt-4 space-y-4">
+            {agentResult.council.map((item) => (
+              <div key={item.role} className="rounded-xl border border-border/60 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-semibold capitalize">{item.role}</div>
+                  <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+                    {item.confidence ?? "medium"}
+                  </div>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">{item.summary}</p>
+              </div>
+            ))}
+            <div className="rounded-xl border border-border/60 p-4">
+              <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+                Evidence
+              </div>
+              <ul className="mt-3 space-y-2 text-xs text-muted-foreground">
+                {agentResult.citations.slice(0, 4).map((cite) => (
+                  <li key={cite.source}>
+                    {cite.source} {cite.score ? `· ${(cite.score * 100).toFixed(0)}%` : ""}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {agentResult.risk_flags.length > 0 && (
+              <div className="rounded-xl border border-demand/40 bg-demand/10 p-4">
+                <div className="text-[10px] uppercase tracking-[0.3em] text-demand">
+                  Risk Flags
+                </div>
+                <ul className="mt-3 space-y-2 text-xs text-demand">
+                  {agentResult.risk_flags.map((risk) => (
+                    <li key={risk}>{risk}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-muted-foreground">
+            Agent insights will appear after the hotspot is selected.
+          </p>
+        )}
       </div>
     </div>
   );

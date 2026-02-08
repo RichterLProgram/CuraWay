@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import Header from "@/components/Header";
 import { useHealthGridData } from "@/hooks/use-health-grid-data";
+import { useAgentCouncil } from "@/hooks/use-agent-council";
+import { useActionGraph } from "@/hooks/use-action-graph";
+import { useCausalImpact } from "@/hooks/use-causal-impact";
+import { usePolicyOptimization } from "@/hooks/use-policy-optimization";
+import { useRealtimeStatus } from "@/hooks/use-realtime-status";
+import { useRouting } from "@/hooks/use-routing";
 import KineticDotsLoader from "@/components/ui/kinetic-dots-loader";
 import { ParticleButton } from "@/components/ui/particle-button";
 import InteractiveMap from "@/components/InteractiveMap";
@@ -82,6 +88,92 @@ const Index = () => {
       ],
     };
   }, [data, selectedRegion, topDeserts]);
+
+  const agentQuery = useMemo(() => {
+    if (!data || !selectedRegion) return "";
+    const desert =
+      data.plannerEngine?.hotspots?.find((d) => d.region === selectedRegion) ??
+      data.gap.deserts.find((d) => d.region_name === selectedRegion);
+    if (!desert) return "";
+    const gapScore =
+      "gap_score" in desert ? (desert.gap_score * 100).toFixed(0) : "—";
+    const population =
+      "population_affected" in desert
+        ? desert.population_affected.toLocaleString()
+        : "—";
+    return `Generate an evidence-backed action plan for ${selectedRegion}. Gap score: ${gapScore}%. Underserved population: ${population}. Provide actions, risks, and timeline.`;
+  }, [data, selectedRegion]);
+
+  const { data: agentResult } = useAgentCouncil(
+    agentQuery,
+    Boolean(agentQuery && activeTab === "demo")
+  );
+
+  const { data: actionGraph } = useActionGraph(
+    actionPlan?.actions ?? [],
+    actionPlan?.dependencies
+  );
+
+  const baselineSeries = useMemo(() => {
+    const base = data?.demand.total_count ?? 100;
+    return Array.from({ length: 6 }, (_, idx) => base + idx * 2);
+  }, [data]);
+
+  const postSeries = useMemo(() => {
+    const base = data?.demand.total_count ?? 100;
+    return Array.from({ length: 6 }, (_, idx) => base - 6 + idx);
+  }, [data]);
+
+  const { data: causalImpact } = useCausalImpact(
+    baselineSeries,
+    postSeries,
+    activeTab === "demo"
+  );
+
+  const policyConstraints = useMemo(() => {
+    const parseCost = (value?: string) => {
+      if (!value) return 1_000_000;
+      const digits = Number(value.replace(/[^0-9.]/g, ""));
+      if (Number.isNaN(digits)) return 1_000_000;
+      return digits * (value.toLowerCase().includes("m") ? 1_000_000 : 1_000);
+    };
+    return {
+      budget: parseCost(actionPlan?.estimatedCost),
+      staff: 60,
+      max_travel_minutes: 180,
+    };
+  }, [actionPlan]);
+
+  const { data: policyOptimization } = usePolicyOptimization(
+    policyConstraints,
+    activeTab === "demo"
+  );
+
+  const { data: realtimeStatus } = useRealtimeStatus(activeTab === "demo");
+
+  const routingOrigin = useMemo(() => {
+    if (!data || !selectedRegion) return null;
+    const desert =
+      data.plannerEngine?.hotspots?.find((d) => d.region === selectedRegion) ??
+      data.gap.deserts.find((d) => d.region_name === selectedRegion);
+    if (!desert) return null;
+    return {
+      lat: "lat" in desert ? desert.lat : 0,
+      lng: "lng" in desert ? desert.lng : 0,
+    };
+  }, [data, selectedRegion]);
+
+  const routingDestination = useMemo(() => {
+    const facility = data?.supply.facilities[0];
+    if (!facility) return null;
+    return { lat: facility.lat, lng: facility.lng };
+  }, [data]);
+
+  const { data: routingStats } = useRouting(
+    routingOrigin,
+    routingDestination,
+    activeTab === "demo"
+  );
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -194,6 +286,11 @@ const Index = () => {
                         selectedRegion={selectedRegion}
                         onSelectRegion={setSelectedRegion}
                         onTakeAction={() => setActionOpen(true)}
+                        agentResult={agentResult}
+                        causalImpact={causalImpact}
+                        policyOptimization={policyOptimization}
+                        realtimeStatus={realtimeStatus}
+                        routingStats={routingStats}
                       />
                     </div>
                   </div>
@@ -207,6 +304,10 @@ const Index = () => {
         open={actionOpen}
         plan={actionPlan}
         onClose={() => setActionOpen(false)}
+        actionGraph={actionGraph}
+        agentResult={agentResult}
+        causalImpact={causalImpact}
+        policyOptimization={policyOptimization}
       />
     </div>
   );

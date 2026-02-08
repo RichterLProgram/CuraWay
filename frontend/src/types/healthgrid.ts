@@ -113,3 +113,89 @@ export interface PlannerEngineResponse {
     Aggressive: SimulationPreset;
   };
 }
+
+export interface AgentCouncilOutput {
+  role: "planner" | "retriever" | "verifier" | "writer";
+  summary: string;
+  details: Record<string, unknown>;
+  confidence?: string;
+}
+
+export interface AgentEvalMetrics {
+  faithfulness: number;
+  completeness: number;
+  evidence_coverage: number;
+  citations_count: number;
+  latency_ms: number;
+  cost_estimate_usd: number;
+}
+
+export interface AgentRunResponse {
+  trace_id: string;
+  provider: string;
+  model: string;
+  answer: string;
+  citations: { source: string; content: string; score?: number }[];
+  rag_used: boolean;
+  elapsed_ms: number;
+  council: AgentCouncilOutput[];
+  risk_flags: string[];
+  compliance_notes: string[];
+  eval_metrics: AgentEvalMetrics;
+  provenance_id: string;
+}
+
+export interface ActionGraphResponse {
+  nodes: { id: string; label: string }[];
+  edges: { from_action: string; to_action: string; reason?: string }[];
+  critical_path: string[];
+}
+
+export interface ScenarioResponse {
+  simulation_presets: {
+    Low: SimulationPreset;
+    Balanced: SimulationPreset;
+    Aggressive: SimulationPreset;
+  };
+}
+
+export interface CausalImpactResponse {
+  metric: string;
+  effect: number;
+  uplift_pct: number;
+  confidence_low: number;
+  confidence_high: number;
+  confidence: number;
+  provenance_id: string;
+}
+
+export interface PolicyOptimizeResponse {
+  options: {
+    id: string;
+    label: string;
+    budget: number;
+    staff: number;
+    coverage_gain_pct: number;
+    underserved_reduction_k: number;
+    avg_travel_minutes: number;
+    tradeoffs: string[];
+  }[];
+  provenance_id: string;
+}
+
+export interface RoutingResponse {
+  minutes: number | null;
+  distance_km: number | null;
+  source: string;
+}
+
+export interface RealtimeStatusResponse {
+  status: string;
+  topic: string;
+  last_ingested_at?: string | null;
+}
+
+export interface ProvenanceResponse {
+  provenance_id: string;
+  payload: Record<string, unknown>;
+}

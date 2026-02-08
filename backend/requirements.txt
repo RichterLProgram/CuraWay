@@ -16,3 +16,5 @@ lancedb
 langgraph
 langchain-databricks
 databricks-sdk
+requests
+kafka-python
