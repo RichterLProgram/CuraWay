@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Dict
 
-from flask import Flask, jsonify, request
+from asgiref.wsgi import WsgiToAsgi
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
 from src.demand.fallback_parse import parse_demand_fallback
@@ -22,8 +24,11 @@ from src.supply.evidence_index import build_evidence_index
 from src.validation.anomaly_agent import validate_supply
 
 
+STATIC_DIR = Path(__file__).resolve().parents[1] / "static"
+
 app = Flask(__name__)
 CORS(app)
+print(f"Starting app; serving static at {STATIC_DIR}; health at /api/health")
 
 
 def _use_legacy_output() -> bool:
@@ -41,6 +46,19 @@ def _apply_legacy_flag(payload: Dict, legacy: bool) -> Dict:
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "healthy", "service": "HealthGrid AI"})
+
+
+@app.route("/api/health", methods=["GET"])
+def api_health():
+    return jsonify({"status": "ok"})
+
+
+@app.route("/", methods=["GET"])
+def root():
+    index_path = STATIC_DIR / "index.html"
+    if index_path.exists():
+        return send_from_directory(STATIC_DIR, "index.html")
+    return jsonify({"detail": "Frontend not built"}), 200
 
 
 @app.route("/parse/demand", methods=["POST"])
@@ -322,5 +340,9 @@ def get_trace(trace_id: str):
     )
 
 
+flask_app = app
+app = WsgiToAsgi(flask_app)
+
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    flask_app.run(debug=True, port=5000)
