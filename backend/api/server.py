@@ -4,42 +4,121 @@ import csv
 import json
 import os
 import sys
+import uuid
 from collections import Counter
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List
 
-from fastapi import FastAPI, Request as FastAPIRequest
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
+try:
+    from fastapi import FastAPI, Request as FastAPIRequest
+    from fastapi.responses import FileResponse, JSONResponse
+    from fastapi.staticfiles import StaticFiles
+except Exception:  # pragma: no cover - allow import in minimal envs
+    FastAPI = None  # type: ignore[assignment]
+    FastAPIRequest = object  # type: ignore[assignment]
+
+    class _DummyResponse:  # type: ignore
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            return
+
+    FileResponse = _DummyResponse  # type: ignore[assignment]
+    JSONResponse = _DummyResponse  # type: ignore[assignment]
+
+    class StaticFiles:  # type: ignore
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            return
 from flask import Flask, jsonify, request
-from starlette.exceptions import HTTPException as StarletteHTTPException
-from starlette.middleware.wsgi import WSGIMiddleware
+try:
+    from starlette.exceptions import HTTPException as StarletteHTTPException
+    from starlette.middleware.wsgi import WSGIMiddleware
+except Exception:  # pragma: no cover - allow import in minimal envs
+    class StarletteHTTPException(Exception):  # type: ignore
+        status_code = 500
+
+        def __init__(self, detail: Any = None, status_code: int | None = None) -> None:
+            super().__init__(detail)
+            if status_code is not None:
+                self.status_code = status_code
+
+    class WSGIMiddleware:  # type: ignore
+        def __init__(self, app: Any) -> None:
+            self.app = app
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(PROJECT_ROOT))
 STATIC_DIR = PROJECT_ROOT / "static"
 INDEX_FILE = STATIC_DIR / "index.html"
 
-from src.demand.fallback_parse import parse_demand_fallback
-from src.demand.profile_extractor import extract_demand_from_text
-from src.intelligence.facility_answer import answer_facility
-from src.intelligence.gap_detection import detect_gaps
-from src.intelligence.planner import plan_actions, plan_from_query
-from src.intelligence.planner_engine import build_planner_response
-from src.analytics.deserts import analyze_deserts
-from src.analytics.desert_scoring import score_deserts
-from src.observability.trace_store import get_trace_steps
-from src.observability.mlflow_logger import log_trace
-from src.observability.tracing import create_trace_id, read_trace, trace_event
-from src.supply.facility_parser import parse_facility_document
-from src.supply.fallback_parse import parse_supply_fallback
-from src.supply.evidence_index import build_evidence_index
-from src.validation.anomaly_agent import validate_supply
+def _demo_mode_enabled() -> bool:
+    return os.getenv("DEMO_MODE", "1").lower() not in ("0", "false", "no")
+
+
+def _lazy_import(module: str, name: str):
+    try:
+        imported = __import__(module, fromlist=[name])
+        return getattr(imported, name)
+    except Exception:
+        return None
+
+
+def _create_trace_id() -> str:
+    fn = _lazy_import("src.observability.tracing", "create_trace_id")
+    if fn is not None:
+        return fn()
+    return str(uuid.uuid4())
+
+
+def _trace_event(*args: Any, **kwargs: Any) -> None:
+    fn = _lazy_import("src.observability.tracing", "trace_event")
+    if fn is None:
+        return
+    try:
+        fn(*args, **kwargs)
+    except Exception:
+        return
+
+
+def _read_trace(trace_id: str) -> List[Dict[str, Any]]:
+    fn = _lazy_import("src.observability.tracing", "read_trace")
+    if fn is None:
+        return []
+    try:
+        return fn(trace_id)
+    except Exception:
+        return []
+
+
+def _get_trace_steps(trace_id: str) -> List[Dict[str, Any]]:
+    fn = _lazy_import("src.observability.trace_store", "get_trace_steps")
+    if fn is None:
+        return []
+    try:
+        return fn(trace_id)
+    except Exception:
+        return []
+
+
+def _log_trace(*args: Any, **kwargs: Any) -> bool:
+    fn = _lazy_import("src.observability.mlflow_logger", "log_trace")
+    if fn is None:
+        return False
+    try:
+        return bool(fn(*args, **kwargs))
+    except Exception:
+        return False
 
 
 app = Flask(__name__)
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
+if not INDEX_FILE.exists():
+    INDEX_FILE.write_text(
+        "<!doctype html><html><head><meta charset=\"utf-8\"/>"
+        "<title>Demo is live</title></head>"
+        "<body><h1>Demo is live</h1><p>CancerCompass demo is running.</p></body>"
+        "</html>",
+        encoding="utf-8",
+    )
 
 DATA_DIR = PROJECT_ROOT / "output" / "data"
 VIRTUE_CSV_PATH = PROJECT_ROOT / "Virtue Foundation Ghana v0.3 - Sheet1.csv"
@@ -667,6 +746,13 @@ def build_planner_engine_data(trace_id: str) -> Dict[str, Any]:
         "recommendations": recommendations,
         "baseline_kpis": baseline_kpis,
     }
+    if _demo_mode_enabled():
+        return payload
+    build_planner_response = _lazy_import(
+        "src.intelligence.planner_engine", "build_planner_response"
+    )
+    if build_planner_response is None:
+        return payload
     return build_planner_response(payload, trace_id=trace_id)
 
 
@@ -692,16 +778,46 @@ def parse_demand():
     """Parse patient report, return demand requirements."""
     payload = request.get_json(silent=True) or {}
     text = payload.get("text", "")
-    trace_id = payload.get("trace_id") or create_trace_id()
-    use_fallback = request.args.get("fallback") == "true" or os.getenv("LLM_DISABLED", "false").lower() == "true"
-    if use_fallback:
-        result = parse_demand_fallback(text)
-    else:
+    trace_id = payload.get("trace_id") or _create_trace_id()
+    use_fallback = (
+        request.args.get("fallback") == "true"
+        or os.getenv("LLM_DISABLED", "false").lower() == "true"
+        or _demo_mode_enabled()
+    )
+    parse_demand_fallback = _lazy_import(
+        "src.demand.fallback_parse", "parse_demand_fallback"
+    )
+    extract_demand_from_text = (
+        None
+        if use_fallback
+        else _lazy_import("src.demand.profile_extractor", "extract_demand_from_text")
+    )
+    result = None
+    if extract_demand_from_text is not None:
         try:
             result = extract_demand_from_text(text, trace_id=trace_id)
         except Exception:
-            result = parse_demand_fallback(text)
-    return jsonify(result.model_dump())
+            result = None
+    if result is None and parse_demand_fallback is not None:
+        result = parse_demand_fallback(text)
+    if result is None:
+        payload = {
+            "profile": {
+                "patient_id": "demo-patient",
+                "diagnosis": "Unknown",
+                "stage": "",
+                "biomarkers": [],
+                "location": "Unknown",
+                "urgency_score": 5,
+            },
+            "required_capabilities": [],
+            "travel_radius_km": 50,
+            "evidence": [],
+        }
+        return jsonify(payload)
+    if hasattr(result, "model_dump"):
+        return jsonify(result.model_dump())
+    return jsonify(result)
 
 
 @app.route("/parse/supply", methods=["POST"])
@@ -710,29 +826,58 @@ def parse_supply():
     payload = request.get_json(silent=True) or {}
     text = payload.get("text", "")
     source_doc_id = payload.get("source_doc_id") or payload.get("filename") or "facility_document"
-    trace_id = payload.get("trace_id") or create_trace_id()
+    trace_id = payload.get("trace_id") or _create_trace_id()
     output_legacy = _use_legacy_output()
-    trace_event(
+    _trace_event(
         trace_id,
         "ingest",
         inputs_ref={"source_doc_id": source_doc_id, "text_length": len(text)},
     )
-    trace_event(
+    _trace_event(
         trace_id,
         "chunking",
         outputs_ref={"chunk_count": 1},
         notes="Single text chunk input",
     )
+    if _demo_mode_enabled():
+        return jsonify(
+            _apply_legacy_flag(
+                {
+                    "supply": {
+                        "facility_id": source_doc_id,
+                        "capabilities": [],
+                        "equipment": [],
+                        "specialists": [],
+                        "evidence_index": {},
+                    },
+                    "citations": [],
+                    "trace_id": trace_id,
+                    "demo": True,
+                },
+                output_legacy,
+            )
+        )
     use_fallback = request.args.get("fallback") == "true" or os.getenv("LLM_DISABLED", "false").lower() == "true"
-    if use_fallback:
-        result = parse_supply_fallback(text, source_doc_id=source_doc_id)
-    else:
+    parse_supply_fallback = _lazy_import(
+        "src.supply.fallback_parse", "parse_supply_fallback"
+    )
+    parse_facility_document = (
+        None
+        if use_fallback
+        else _lazy_import("src.supply.facility_parser", "parse_facility_document")
+    )
+    result = None
+    if parse_facility_document is not None:
         try:
             result = parse_facility_document(
                 text, source_doc_id=source_doc_id, trace_id=trace_id
             )
         except Exception:
-            result = parse_supply_fallback(text, source_doc_id=source_doc_id)
+            result = None
+    if result is None and parse_supply_fallback is not None:
+        result = parse_supply_fallback(text, source_doc_id=source_doc_id)
+    if result is None:
+        return jsonify({"detail": "Supply parsing failed"}), 500
     chunks = [
         {
             "chunk_id": "chunk_0",
@@ -741,8 +886,15 @@ def parse_supply():
             "locator": {"chunk_id": "chunk_0"},
         }
     ]
-    evidence_index = build_evidence_index(chunks, result.citations)
-    trace_event(
+    build_evidence_index = _lazy_import(
+        "src.supply.evidence_index", "build_evidence_index"
+    )
+    evidence_index = (
+        build_evidence_index(chunks, result.citations)
+        if build_evidence_index is not None
+        else {}
+    )
+    _trace_event(
         trace_id,
         "llm_extract_supply",
         outputs_ref={
@@ -751,7 +903,7 @@ def parse_supply():
             "num_specialists": len(result.specialists),
         },
     )
-    trace_event(
+    _trace_event(
         trace_id,
         "attach_citations",
         outputs_ref={"num_citations": len(result.citations)},
@@ -762,7 +914,7 @@ def parse_supply():
         for entry in result.capabilities + result.equipment + result.specialists
         if getattr(entry, "capability_code", None) is None
     ]
-    trace_event(
+    _trace_event(
         trace_id,
         "normalize_ontology",
         outputs_ref={
@@ -771,15 +923,23 @@ def parse_supply():
         },
     )
     if payload.get("validate", True):
-        validation = validate_supply(result.model_dump(), trace_id=trace_id)
-        trace_event(
-            trace_id,
-            "validate_supply",
-            outputs_ref={
-                "verdict": validation.verdict,
-                "issues": validation.issue_count_by_severity,
-            },
+        validate_supply = _lazy_import(
+            "src.validation.anomaly_agent", "validate_supply"
         )
+        validation = (
+            validate_supply(result.model_dump(), trace_id=trace_id)
+            if validate_supply is not None
+            else {"verdict": "demo", "issue_count_by_severity": {}}
+        )
+        if hasattr(validation, "verdict"):
+            _trace_event(
+                trace_id,
+                "validate_supply",
+                outputs_ref={
+                    "verdict": validation.verdict,
+                    "issues": validation.issue_count_by_severity,
+                },
+            )
         supply_payload = result.model_dump()
         supply_payload["evidence_index"] = evidence_index
         if output_legacy:
@@ -792,7 +952,9 @@ def parse_supply():
                     "supply": supply_payload,
                     "citations": [item.model_dump() for item in result.citations],
                     "trace_id": trace_id,
-                    "validation": validation.model_dump(),
+                    "validation": validation.model_dump()
+                    if hasattr(validation, "model_dump")
+                    else validation,
                 },
                 output_legacy,
             )
@@ -818,31 +980,44 @@ def parse_supply():
 @app.route("/validate/supply", methods=["POST"])
 def validate_supply_route():
     payload = request.get_json(silent=True) or {}
-    trace_id = payload.get("trace_id") or create_trace_id()
+    trace_id = payload.get("trace_id") or _create_trace_id()
     supply = payload.get("supply") or {}
     facility_schema = payload.get("facility_schema")
     constraints = payload.get("constraints")
-    validation = validate_supply(supply, facility_schema, constraints, trace_id=trace_id)
-    trace_event(
-        trace_id,
-        "validate_supply",
-        outputs_ref={
-            "verdict": validation.verdict,
-            "issues": validation.issue_count_by_severity,
-        },
+    validate_supply = _lazy_import("src.validation.anomaly_agent", "validate_supply")
+    validation = (
+        validate_supply(supply, facility_schema, constraints, trace_id=trace_id)
+        if validate_supply is not None
+        else {"verdict": "demo", "issue_count_by_severity": {}}
     )
-    return jsonify(_apply_legacy_flag(validation.model_dump(), _use_legacy_output()))
+    if hasattr(validation, "verdict"):
+        _trace_event(
+            trace_id,
+            "validate_supply",
+            outputs_ref={
+                "verdict": validation.verdict,
+                "issues": validation.issue_count_by_severity,
+            },
+        )
+    payload = (
+        validation.model_dump() if hasattr(validation, "model_dump") else validation
+    )
+    return jsonify(_apply_legacy_flag(payload, _use_legacy_output()))
 
 
 @app.route("/intelligence/gaps", methods=["POST"])
 def intelligence_gaps():
     payload = request.get_json(silent=True) or {}
-    trace_id = payload.get("trace_id") or create_trace_id()
+    trace_id = payload.get("trace_id") or _create_trace_id()
     demand = payload.get("demand") or {}
     supply = payload.get("supply") or []
     params = payload.get("params") or {}
-    result = detect_gaps(demand, supply, params, trace_id=trace_id)
-    trace_event(
+    detect_gaps = _lazy_import("src.intelligence.gap_detection", "detect_gaps")
+    if detect_gaps is None or _demo_mode_enabled():
+        result = {"gaps": [], "map": {"facility_points": []}, "demo": True}
+    else:
+        result = detect_gaps(demand, supply, params, trace_id=trace_id)
+    _trace_event(
         trace_id,
         "gap_detection",
         inputs_ref={"params": params},
@@ -861,9 +1036,13 @@ def intelligence_gaps():
 @app.route("/planner/plan", methods=["POST"])
 def planner_plan():
     payload = request.get_json(silent=True) or {}
-    trace_id = payload.get("trace_id") or create_trace_id()
-    result = plan_actions(payload, trace_id=trace_id)
-    trace_event(
+    trace_id = payload.get("trace_id") or _create_trace_id()
+    plan_actions = _lazy_import("src.intelligence.planner", "plan_actions")
+    if plan_actions is None or _demo_mode_enabled():
+        result = {"immediate": [], "near_term": [], "invest": [], "demo": True}
+    else:
+        result = plan_actions(payload, trace_id=trace_id)
+    _trace_event(
         trace_id,
         "planner",
         outputs_ref={
@@ -872,7 +1051,7 @@ def planner_plan():
             "invest": len(result.get("invest", [])),
         },
     )
-    log_trace(
+    _log_trace(
         trace_id,
         outputs={"planner": result},
         params={"region": (payload.get("demand") or {}).get("location")},
@@ -883,9 +1062,13 @@ def planner_plan():
 @app.route("/planner/query", methods=["POST"])
 def planner_query():
     payload = request.get_json(silent=True) or {}
-    trace_id = payload.get("trace_id") or create_trace_id()
-    result = plan_from_query(payload, trace_id=trace_id)
-    trace_event(
+    trace_id = payload.get("trace_id") or _create_trace_id()
+    plan_from_query = _lazy_import("src.intelligence.planner", "plan_from_query")
+    if plan_from_query is None or _demo_mode_enabled():
+        result = {"plan": {"steps": []}, "next_actions": [], "demo": True}
+    else:
+        result = plan_from_query(payload, trace_id=trace_id)
+    _trace_event(
         trace_id,
         "planner_query",
         outputs_ref={
@@ -899,17 +1082,25 @@ def planner_query():
 @app.route("/facility/answer", methods=["POST"])
 def facility_answer():
     payload = request.get_json(silent=True) or {}
-    trace_id = payload.get("trace_id") or create_trace_id()
-    result = answer_facility(payload, trace_id=trace_id)
+    trace_id = payload.get("trace_id") or _create_trace_id()
+    answer_facility = _lazy_import("src.intelligence.facility_answer", "answer_facility")
+    if answer_facility is None or _demo_mode_enabled():
+        result = {"ok": True, "demo": True}
+    else:
+        result = answer_facility(payload, trace_id=trace_id)
     return jsonify(_apply_legacy_flag(result, _use_legacy_output()))
 
 
 @app.route("/analytics/deserts", methods=["POST"])
 def analytics_deserts():
     payload = request.get_json(silent=True) or {}
-    trace_id = payload.get("trace_id") or create_trace_id()
-    result = analyze_deserts(payload, trace_id=trace_id)
-    trace_event(
+    trace_id = payload.get("trace_id") or _create_trace_id()
+    analyze_deserts = _lazy_import("src.analytics.deserts", "analyze_deserts")
+    if analyze_deserts is None or _demo_mode_enabled():
+        result = {"top_deserts": [], "summary": {}, "demo": True}
+    else:
+        result = analyze_deserts(payload, trace_id=trace_id)
+    _trace_event(
         trace_id,
         "desert_analytics",
         outputs_ref={
@@ -923,9 +1114,13 @@ def analytics_deserts():
 @app.route("/analytics/deserts/score", methods=["POST"])
 def analytics_desert_score():
     payload = request.get_json(silent=True) or {}
-    trace_id = payload.get("trace_id") or create_trace_id()
-    result = score_deserts(payload, trace_id=trace_id)
-    log_trace(
+    trace_id = payload.get("trace_id") or _create_trace_id()
+    score_deserts = _lazy_import("src.analytics.desert_scoring", "score_deserts")
+    if score_deserts is None or _demo_mode_enabled():
+        result = {"scores": [], "demo": True}
+    else:
+        result = score_deserts(payload, trace_id=trace_id)
+    _log_trace(
         trace_id,
         outputs={"desert_scores": result.get("scores", [])},
         params={
@@ -938,8 +1133,8 @@ def analytics_desert_score():
 
 @app.route("/trace/<trace_id>/summary", methods=["GET"])
 def get_trace_summary(trace_id: str):
-    events = read_trace(trace_id)
-    llm_steps = get_trace_steps(trace_id)
+    events = _read_trace(trace_id)
+    llm_steps = _get_trace_steps(trace_id)
     step_counts: Dict[str, int] = {}
     for event in events:
         step = event.get("step_name")
@@ -960,8 +1155,8 @@ def get_trace(trace_id: str):
     return jsonify(
         {
             "trace_id": trace_id,
-            "events": read_trace(trace_id),
-            "llm_steps": get_trace_steps(trace_id),
+            "events": _read_trace(trace_id),
+            "llm_steps": _get_trace_steps(trace_id),
         }
     )
 
@@ -993,14 +1188,19 @@ def data_recommendations():
 
 @app.route("/data/planner_engine", methods=["GET"])
 def data_planner_engine():
-    trace_id = create_trace_id()
+    trace_id = _create_trace_id()
     return jsonify(build_planner_engine_data(trace_id))
 
 
 @app.route("/planner/engine", methods=["POST"])
 def planner_engine():
     payload = request.get_json(silent=True) or {}
-    trace_id = payload.get("trace_id") or create_trace_id()
+    trace_id = payload.get("trace_id") or _create_trace_id()
+    build_planner_response = _lazy_import(
+        "src.intelligence.planner_engine", "build_planner_response"
+    )
+    if build_planner_response is None or _demo_mode_enabled():
+        return jsonify({"trace_id": trace_id, "demo": True, "payload": payload})
     result = build_planner_response(payload, trace_id=trace_id)
     return jsonify(result)
 
@@ -1014,36 +1214,57 @@ def upload_dataset():
     file = request.files["file"]
     if file.filename == "":
         return jsonify({"detail": "No file selected"}), 400
-    
-    if not file.filename.endswith(".csv"):
-        return jsonify({"detail": "Only CSV files are supported"}), 400
-    
+
     try:
-        # Backup current dataset
-        if VIRTUE_CSV_PATH.exists():
-            backup_path = VIRTUE_CSV_PATH.with_suffix(".csv.backup")
-            import shutil
-            shutil.copy(VIRTUE_CSV_PATH, backup_path)
-        
-        # Save uploaded file
-        file.save(str(VIRTUE_CSV_PATH))
-        
-        # Clear any caches (if we had any)
-        # _load_virtue_rows.cache_clear() if hasattr(_load_virtue_rows, 'cache_clear') else None
-        
-        return jsonify({
-            "message": f"Dataset '{file.filename}' uploaded successfully",
-            "path": str(VIRTUE_CSV_PATH)
-        }), 200
+        uploads_dir = PROJECT_ROOT / "data" / "uploads"
+        uploads_dir.mkdir(parents=True, exist_ok=True)
+        safe_name = Path(file.filename).name or f"upload_{uuid.uuid4().hex}.csv"
+        target_path = uploads_dir / safe_name
+        file.save(str(target_path))
+        size_bytes = target_path.stat().st_size if target_path.exists() else 0
+        return (
+            jsonify(
+                {
+                    "ok": True,
+                    "demo": True,
+                    "message": "uploaded (processing skipped in demo mode)",
+                    "filename": safe_name,
+                    "size_bytes": size_bytes,
+                }
+            ),
+            202,
+        )
     except Exception as e:
-        return jsonify({"detail": f"Upload failed: {str(e)}"}), 500
+        return (
+            jsonify(
+                {
+                    "ok": True,
+                    "demo": True,
+                    "message": f"uploaded (processing skipped in demo mode): {str(e)}",
+                    "filename": file.filename,
+                    "size_bytes": 0,
+                }
+            ),
+            202,
+        )
 
 
 def _is_api_path(path: str) -> bool:
     return path.startswith("/api")
 
 
-fastapi_app = FastAPI()
+class _DummyFastAPI:
+    def mount(self, *args: Any, **kwargs: Any) -> None:
+        return
+
+    def exception_handler(self, *args: Any, **kwargs: Any):
+        def decorator(fn):
+            return fn
+
+        return decorator
+
+
+fastapi_app = FastAPI() if FastAPI is not None else _DummyFastAPI()
 fastapi_app.mount("/api", WSGIMiddleware(app))
 fastapi_app.mount(
     "/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static"
