@@ -10,12 +10,22 @@ RUN set -e; \
     elif [ -f app/package.json ]; then FRONTEND_DIR="app"; \
     elif [ -f ui/package.json ]; then FRONTEND_DIR="ui"; \
     else echo "No frontend package.json found" && ls -la && exit 1; fi; \
-    cd "/app/${FRONTEND_DIR}"; \
-    npm ci; \
-    npm run build; \
-    if [ -d dist ]; then cp -r dist /tmp/frontend_build; \
-    elif [ -d build ]; then cp -r build /tmp/frontend_build; \
-    else echo "No build output (dist/build) found" && ls -la && exit 1; fi
+    echo "FRONTEND_DIR=${FRONTEND_DIR}" > /tmp/frontend_dir.env; \
+    echo "FRONTEND_DIR=${FRONTEND_DIR}"; \
+    ls -la /app; \
+    ls -la "/app/${FRONTEND_DIR}" || true
+RUN . /tmp/frontend_dir.env; cd "/app/$FRONTEND_DIR" && pwd && ls -la && node -v && npm -v
+RUN . /tmp/frontend_dir.env; cd "/app/$FRONTEND_DIR" && cat package.json | head -n 40
+RUN . /tmp/frontend_dir.env; cd "/app/$FRONTEND_DIR" && \
+    if [ -f package-lock.json ]; then echo "Using npm ci"; npm ci; \
+    else echo "No package-lock.json -> using npm install"; npm install; fi
+RUN . /tmp/frontend_dir.env; cd "/app/$FRONTEND_DIR" && npm run build
+RUN . /tmp/frontend_dir.env; cd "/app/$FRONTEND_DIR" && \
+    echo "Listing build outputs:" && ls -la && \
+    if [ -d dist ]; then echo "Found dist"; rm -rf /tmp/frontend_build && cp -r dist /tmp/frontend_build; \
+    elif [ -d build ]; then echo "Found build"; rm -rf /tmp/frontend_build && cp -r build /tmp/frontend_build; \
+    else echo "No build output (dist/build) found"; echo "Tree:"; ls -la; exit 1; fi && \
+    echo "Copied to /tmp/frontend_build:" && ls -la /tmp/frontend_build
 
 FROM python:3.12-slim AS backend
 
