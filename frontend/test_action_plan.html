@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Action Plan Logic</title>
+</head>
+<body>
+    <h1>Testing Action Plan Variability</h1>
+    <div id="output"></div>
+
+    <script>
+        // Simulate 3 different regions with different gap scores
+        const testRegions = [
+            { region: "Western", gap_score: 0.3, population_affected: 20000 },
+            { region: "KEEA", gap_score: 0.8, population_affected: 21000 },
+            { region: "Greater Accra", gap_score: 0.2, population_affected: 13000 }
+        ];
+
+        let output = "<table border='1' style='border-collapse: collapse;'>";
+        output += "<tr><th>Region</th><th>Gap Score</th><th>Priority</th><th>Base Cost</th><th>Coverage Gain</th><th>Action Prefix</th></tr>";
+
+        testRegions.forEach(desert => {
+            const gapScore = desert.gap_score;
+            const priority = gapScore > 0.75 ? "critical" : (gapScore > 0.6 ? "high" : (gapScore > 0.4 ? "medium" : "low"));
+            const baseCost = Math.round(120 + gapScore * 600 + (desert.population_affected / 50000) * 100);
+            const coverageGain = Math.round(10 + gapScore * 30);
+            
+            let actionPrefix;
+            if (priority === "critical") {
+                const templates = ["Urgent expansion of", "Critical upgrade:", "Immediate deployment of"];
+                actionPrefix = templates[Math.abs(desert.region.charCodeAt(0)) % templates.length];
+            } else if (priority === "high") {
+                const templates = ["Priority upgrade for", "Scale", "Strengthen"];
+                actionPrefix = templates[Math.abs(desert.region.charCodeAt(0)) % templates.length];
+            } else {
+                const templates = ["Expand", "Enhance", "Improve access to"];
+                actionPrefix = templates[Math.abs(desert.region.charCodeAt(0)) % templates.length];
+            }
+
+            output += `<tr>
+                <td>${desert.region}</td>
+                <td>${gapScore}</td>
+                <td>${priority}</td>
+                <td>$${baseCost}K</td>
+                <td>+${coverageGain}%</td>
+                <td>${actionPrefix}</td>
+            </tr>`;
+        });
+
+        output += "</table>";
+        document.getElementById('output').innerHTML = output;
+    </script>
+</body>
+</html>
