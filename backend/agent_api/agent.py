@@ -30,7 +30,7 @@ DEFAULT_SYSTEM_PROMPT = (
 )
 
 TEXT2SQL_PROMPT = (
-    "You are Text2SQL Genie. Convert the user question into a single SQL query "
+    "You are a Text2SQL assistant. Convert the user question into a single SQL query "
     "using ONLY the provided schema. Return only SQL with no commentary."
 )
 

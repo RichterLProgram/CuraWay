@@ -16,8 +16,6 @@ langchain-community
 langchain-text-splitters
 lancedb
 langgraph
-langchain-databricks
-databricks-sdk
 requests
 httpx
 kafka-python

@@ -80,13 +80,7 @@ cd backend
 python .\scripts\build_rag_index.py
 ```
 
-Databricks Vector Search (optional):
-- Set `DATABRICKS_HOST` and `DATABRICKS_TOKEN`
-- Set `DATABRICKS_VECTOR_SEARCH_ENDPOINT`
-- Set `DATABRICKS_VECTOR_SEARCH_INDEX`
-Databricks SQL (optional): `pip install -r backend/requirements-databricks.txt`
-
-Text2SQL (Genie-style) endpoint:
+Text2SQL endpoint (SQL tool uses local sqlite demo backend):
 
 ```powershell
 curl -X POST http://localhost:8000/agent/text2sql `

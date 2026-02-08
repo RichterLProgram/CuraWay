@@ -118,7 +118,7 @@ def test_routing():
 def test_text2sql():
     """Test 4: Natural Language to SQL"""
     print("\n" + "="*80)
-    print("TEST 4: Text2SQL (Genie)")
+    print("TEST 4: Text2SQL")
     print("="*80)
     
     query = "Show me the top 5 regions with highest demand"

@@ -20,31 +20,6 @@ def _rag_disabled() -> bool:
     return os.getenv("RAG_DISABLED", "false").lower() == "true"
 
 
-def _databricks_enabled() -> bool:
-    return bool(os.getenv("DATABRICKS_VECTOR_SEARCH_ENDPOINT")) and bool(
-        os.getenv("DATABRICKS_VECTOR_SEARCH_INDEX")
-    )
-
-
-def _databricks_store():
-    try:
-        from langchain_databricks import DatabricksVectorSearch  # type: ignore
-    except Exception as exc:  # pragma: no cover - optional dependency
-        raise RuntimeError(
-            "Databricks Vector Search is not installed. "
-            "Install with: python -m pip install langchain-databricks"
-        ) from exc
-
-    endpoint = os.getenv("DATABRICKS_VECTOR_SEARCH_ENDPOINT", "")
-    index_name = os.getenv("DATABRICKS_VECTOR_SEARCH_INDEX", "")
-    if not endpoint or not index_name:
-        raise RuntimeError("Databricks Vector Search env vars are not set.")
-    return DatabricksVectorSearch(
-        endpoint=endpoint,
-        index_name=index_name,
-    )
-
-
 def _source_paths() -> List[Path]:
     sources: List[Path] = []
     data_dir = BACKEND_ROOT / "output" / "data"
@@ -129,8 +104,6 @@ def load_vector_store():
 
 
 def get_vector_store():
-    if _databricks_enabled():
-        return _databricks_store()
     if PERSIST_DIR.exists() and any(PERSIST_DIR.iterdir()):
         return load_vector_store()
     return build_vector_store()
