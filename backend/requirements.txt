@@ -1,6 +1,8 @@
+--only-binary=:all:
 flask
 pydantic
-pandas
+pandas==2.2.2
+mlflow==2.10.2
 openai
 pyyaml
 python-dotenv
