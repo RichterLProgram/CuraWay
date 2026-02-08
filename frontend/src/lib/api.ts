@@ -1,14 +1,23 @@
-const normalizeBase = (value: string, fallback = "/api") => {
-  const base = (value || fallback).trim();
-  if (!base) return fallback;
+const normalizeBase = (value?: string, fallback = "/api") => {
+  const raw = (value ?? "").trim();
+  if (!raw) return fallback;
+  const lower = raw.toLowerCase();
+  if (lower.startsWith("http://") || lower.startsWith("https://") || lower.includes("localhost")) {
+    return fallback;
+  }
+  const base = raw.startsWith("/") ? raw : `/${raw}`;
   return base.endsWith("/") ? base.slice(0, -1) : base;
 };
 
-const API_BASE_URL = normalizeBase(import.meta.env.VITE_API_BASE_URL);
-const AGENT_API_BASE_URL = normalizeBase(import.meta.env.VITE_AGENT_API_BASE_URL);
+export const API_BASE = normalizeBase(
+  import.meta.env.VITE_API_BASE ?? import.meta.env.VITE_API_BASE_URL
+);
+const AGENT_API_BASE_URL = normalizeBase(
+  import.meta.env.VITE_AGENT_API_BASE ?? import.meta.env.VITE_AGENT_API_BASE_URL
+);
 
 async function fetchJson<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`);
+  const response = await fetch(`${API_BASE}${path}`);
   if (!response.ok) {
     throw new Error(`Request failed: ${response.status}`);
   }

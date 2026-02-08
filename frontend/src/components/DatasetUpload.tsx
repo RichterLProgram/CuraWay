@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
+import { API_BASE } from "@/lib/api";
 
 export function DatasetUpload() {
   const [uploading, setUploading] = useState(false);
@@ -17,7 +18,7 @@ export function DatasetUpload() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch("http://localhost:5000/upload/dataset", {
+      const response = await fetch(`${API_BASE}/upload/dataset`, {
         method: "POST",
         body: formData,
       });
