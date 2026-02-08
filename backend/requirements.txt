@@ -1,3 +1,4 @@
+--only-binary=:all:
 flask
 flask-cors
 fastapi
@@ -6,7 +7,7 @@ gunicorn
 asgiref
 python-multipart
 pydantic
-pandas
+pandas==2.2.2
 openai
 pyyaml
 anthropic
