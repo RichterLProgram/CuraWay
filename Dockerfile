@@ -42,6 +42,7 @@ RUN . /tmp/frontend_dir.env; if [ "$FRONTEND_ENABLED" = "true" ]; then \
 FROM python:3.12-slim AS backend
 
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH="/app/backend"
 WORKDIR /app
 
 COPY backend/requirements.txt backend/requirements.txt
