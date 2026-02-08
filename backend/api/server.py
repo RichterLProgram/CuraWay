@@ -28,7 +28,7 @@ from src.supply.evidence_index import build_evidence_index
 from src.validation.anomaly_agent import validate_supply
 
 
-STATIC_DIR = Path(__file__).resolve().parents[1] / "static"
+STATIC_DIR = Path(__file__).resolve().parents[2] / "backend" / "static"
 INDEX_FILE = STATIC_DIR / "index.html"
 
 app = Flask(__name__)
