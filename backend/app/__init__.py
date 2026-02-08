@@ -1,1 +1,0 @@
-"""CancerCompass backend app layer."""

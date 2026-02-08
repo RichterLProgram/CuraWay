@@ -1,7 +1,0 @@
-Patient: Jonas L.
-Diagnosis: Melanoma, Stage IV
-Biomarker: BRAF, PD-L1
-Previous systemic therapies: 1
-ECOG 1
-No brain metastases
-Location: Vienna

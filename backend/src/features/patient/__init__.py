@@ -1,1 +1,0 @@
-"""Patientenprofil-Module."""

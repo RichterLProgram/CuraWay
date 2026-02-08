@@ -1,7 +1,0 @@
-Patient: Anna M.
-Diagnosis: NSCLC (Non-Small Cell Lung Cancer), Stage IVB
-Biomarker: EGFR Exon 19 Deletion, PD-L1 positive
-Prior therapy lines: 1
-ECOG Performance Status 1
-No brain metastases
-Location: Berlin

@@ -1,7 +1,0 @@
-Patient: Markus T.
-Diagnosis: Lung Adenocarcinoma, Stage IV
-Biomarker: KRAS
-Previous systemic therapies: 2
-ECOG 2
-Brain metastases present
-Location: Munich

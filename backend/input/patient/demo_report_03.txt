@@ -1,7 +1,0 @@
-Patient: Elisa G.
-Diagnosis: Breast cancer, Stage III
-Biomarker: HER2, BRCA1
-Prior therapy lines: 0
-ECOG Performance Status 0
-No brain metastases
-Location: Hamburg

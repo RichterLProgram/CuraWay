@@ -1,1 +1,0 @@
-"""Clinical Trials Matching Paket."""
