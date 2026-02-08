@@ -66,5 +66,5 @@ RUN if [ -f backend/static/.frontend_skipped ]; then \
       test -f backend/static/index.html; \
     fi
 
-EXPOSE 8000
-CMD ["sh","-c","uvicorn backend.api.server:app --host 0.0.0.0 --port ${PORT:-8000}"]
+EXPOSE 10000
+CMD ["sh","-c","uvicorn backend.api.server:app --host 0.0.0.0 --port ${PORT:-10000}"]
