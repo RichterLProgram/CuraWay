@@ -1,7 +1,5 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
-const AGENT_API_BASE_URL =
-  import.meta.env.VITE_AGENT_API_BASE_URL ?? "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
+const AGENT_API_BASE_URL = import.meta.env.VITE_AGENT_API_BASE_URL ?? "/api";
 
 async function fetchJson<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`);

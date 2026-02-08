@@ -1,5 +1,4 @@
 flask
-flask-cors
 pydantic
 pandas
 openai
@@ -18,4 +17,5 @@ langgraph
 langchain-databricks
 databricks-sdk
 requests
+httpx
 kafka-python

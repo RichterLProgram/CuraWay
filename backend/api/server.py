@@ -9,11 +9,17 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List
 
+from fastapi import FastAPI, Request as FastAPIRequest
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from flask import Flask, jsonify, request
-from flask_cors import CORS
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.wsgi import WSGIMiddleware
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(PROJECT_ROOT))
+STATIC_DIR = PROJECT_ROOT / "static"
+INDEX_FILE = STATIC_DIR / "index.html"
 
 from src.demand.fallback_parse import parse_demand_fallback
 from src.demand.profile_extractor import extract_demand_from_text
@@ -33,7 +39,7 @@ from src.validation.anomaly_agent import validate_supply
 
 
 app = Flask(__name__)
-CORS(app)
+STATIC_DIR.mkdir(parents=True, exist_ok=True)
 
 DATA_DIR = PROJECT_ROOT / "output" / "data"
 VIRTUE_CSV_PATH = PROJECT_ROOT / "Virtue Foundation Ghana v0.3 - Sheet1.csv"
@@ -1033,5 +1039,35 @@ def upload_dataset():
         return jsonify({"detail": f"Upload failed: {str(e)}"}), 500
 
 
+def _is_api_path(path: str) -> bool:
+    return path.startswith("/api")
+
+
+fastapi_app = FastAPI()
+fastapi_app.mount("/api", WSGIMiddleware(app))
+fastapi_app.mount(
+    "/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static"
+)
+
+
+@fastapi_app.exception_handler(StarletteHTTPException)
+async def spa_fallback(
+    request: FastAPIRequest, exc: StarletteHTTPException
+) -> JSONResponse | FileResponse:
+    if exc.status_code == 404 and not _is_api_path(request.url.path):
+        if INDEX_FILE.exists():
+            return FileResponse(INDEX_FILE)
+    return JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
+
+
+app = fastapi_app
+
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    import uvicorn
+
+    uvicorn.run(
+        "backend.api.server:app",
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", "8000")),
+    )

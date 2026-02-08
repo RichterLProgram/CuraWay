@@ -1,5 +1,16 @@
 # CancerCompass
 
+## Render Deploy (Docker)
+
+- Deploy on Render as Docker Web Service
+- Custom Domain zeigt auf denselben Service (eine Domain)
+- API liegt unter `/api`
+- Frontend wird vom Backend als Static Build ausgeliefert
+
+Kurzcheck:
+- Render: Language `Docker`, kein Start Command nötig
+- Env Vars: `LLM_DISABLED=true` (optional für deterministische Tests)
+
 ## ✨ Latest Updates - Hotspot Report Feature (FIXED!)
 
 Der "Take Action" Button funktioniert jetzt vollständig! 
