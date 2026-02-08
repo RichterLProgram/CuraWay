@@ -1,0 +1,19 @@
+version: 1
+mappings:
+  - match: "lung cancer"
+    capabilities:
+      - ONC_GENERAL
+      - IMAGING_CT
+      - PATHOLOGY
+      - SPECIALIST_RADIOLOGY
+  - match: "breast cancer"
+    capabilities:
+      - ONC_GENERAL
+      - IMAGING_XRAY
+      - IMAGING_ULTRASOUND
+      - PATHOLOGY
+  - match: "cervical cancer"
+    capabilities:
+      - ONC_GENERAL
+      - ONC_RADIOTHERAPY
+      - PATHOLOGY

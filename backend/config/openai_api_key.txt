@@ -1,0 +1,3 @@
+# Paste your OpenAI API key in this file (single line).
+# Example: sk-proj-...
+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

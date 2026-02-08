@@ -1,0 +1,7 @@
+{
+  "intent": "Identify oncology deserts near Accra",
+  "radius_km": 200,
+  "region": "Accra",
+  "required_capabilities": ["Oncology"],
+  "plan_steps": ["Detect deserts", "Rank gaps", "Prepare map output"]
+}

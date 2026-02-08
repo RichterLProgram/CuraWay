@@ -1,0 +1,51 @@
+{
+  "confidence_threshold": 0.4,
+  "rules": [
+    {
+      "code": "CT_MRI_REQUIRES_RADIOLOGY",
+      "when_any": ["IMAGING_CT", "IMAGING_MRI"],
+      "requires_any": ["SPECIALIST_RADIOLOGY", "radiologist_count"],
+      "severity": "warning",
+      "verdict": "suspicious",
+      "message": "CT/MRI capability requires radiology staff or radiologist count > 0.",
+      "path": "canonical_capabilities"
+    },
+    {
+      "code": "SURGERY_REQUIRES_OT_ANESTHESIA",
+      "when_any": ["SURGERY_GENERAL", "SURGERY_OT"],
+      "requires_all": ["SURGERY_OT"],
+      "requires_any": ["ANESTHESIA", "SPECIALIST_ANESTHESIA", "anesthesia_staff"],
+      "severity": "warning",
+      "verdict": "suspicious",
+      "message": "Surgery capability requires an operating theatre and anesthesia.",
+      "path": "canonical_capabilities"
+    },
+    {
+      "code": "ICU_REQUIRES_VENTILATORS_STAFF",
+      "when_any": ["ICU"],
+      "requires_any": ["EQUIP_VENTILATOR", "SPECIALIST_CRITICAL_CARE", "critical_care_staff"],
+      "severity": "warning",
+      "verdict": "suspicious",
+      "message": "ICU capability requires ventilators or critical care staff > 0.",
+      "path": "canonical_capabilities"
+    },
+    {
+      "code": "BLOOD_TRANSFUSION_REQUIRES_BANK_OR_LAB",
+      "when_any": ["BLOOD_TRANSFUSION"],
+      "requires_any": ["LAB_BLOODBANK", "LAB_GENERAL"],
+      "severity": "warning",
+      "verdict": "suspicious",
+      "message": "Blood transfusion requires blood bank or lab capability.",
+      "path": "canonical_capabilities"
+    },
+    {
+      "code": "NO_IMAGING_CONTRADICTION",
+      "when_any": ["IMAGING_NONE"],
+      "forbid_any": ["IMAGING_CT", "IMAGING_MRI", "IMAGING_XRAY", "IMAGING_ULTRASOUND"],
+      "severity": "error",
+      "verdict": "impossible",
+      "message": "Imaging listed but facility marked as no imaging.",
+      "path": "canonical_capabilities"
+    }
+  ]
+}

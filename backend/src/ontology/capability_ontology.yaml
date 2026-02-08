@@ -1,0 +1,110 @@
+version: 1
+capabilities:
+  IMAGING_CT:
+    display_name: "CT scan"
+    synonyms: ["ct", "ct scan", "computed tomography", "tomodensitometry", "ct scanner"]
+    category: "imaging"
+  IMAGING_MRI:
+    display_name: "MRI"
+    synonyms: ["mri", "magnetic resonance", "magnetic resonance imaging"]
+    category: "imaging"
+  IMAGING_XRAY:
+    display_name: "X-ray"
+    synonyms: ["x-ray", "xray", "radiography"]
+    category: "imaging"
+  IMAGING_ULTRASOUND:
+    display_name: "Ultrasound"
+    synonyms: ["ultrasound", "sonography", "usg"]
+    category: "imaging"
+  IMAGING_NONE:
+    display_name: "No imaging"
+    synonyms: ["no imaging", "imaging unavailable", "no radiology", "no imaging available"]
+    category: "imaging"
+  SURGERY_OT:
+    display_name: "Operating theatre"
+    synonyms: ["operating theatre", "operating room", "surgical theatre", "ot"]
+    category: "surgery"
+  SURGERY_GENERAL:
+    display_name: "General surgery"
+    synonyms: ["general surgery", "surgical services", "surgery"]
+    category: "surgery"
+  ANESTHESIA:
+    display_name: "Anesthesia"
+    synonyms: ["anesthesia", "anaesthesia", "anesthesiology", "anaesthesiology"]
+    category: "surgery"
+  ICU:
+    display_name: "ICU"
+    synonyms: ["icu", "intensive care", "critical care"]
+    category: "critical_care"
+  EQUIP_VENTILATOR:
+    display_name: "Ventilator"
+    synonyms: ["ventilator", "ventilators", "mechanical ventilation"]
+    category: "critical_care"
+  OXYGEN_SUPPLY:
+    display_name: "Oxygen supply"
+    synonyms: ["oxygen", "oxygen supply", "oxygen concentrator", "oxygen cylinders"]
+    category: "critical_care"
+  LAB_BLOODBANK:
+    display_name: "Blood bank"
+    synonyms: ["blood bank", "blood storage"]
+    category: "laboratory"
+  BLOOD_TRANSFUSION:
+    display_name: "Blood transfusion"
+    synonyms: ["blood transfusion", "transfusion"]
+    category: "laboratory"
+  LAB_GENERAL:
+    display_name: "Laboratory services"
+    synonyms: ["lab", "laboratory", "laboratory services", "lab capability"]
+    category: "laboratory"
+  PATHOLOGY:
+    display_name: "Pathology"
+    synonyms: ["pathology", "histopathology", "cytopathology"]
+    category: "laboratory"
+  ONC_CHEMO:
+    display_name: "Chemotherapy"
+    synonyms: ["chemotherapy", "chemo", "oncology infusion"]
+    category: "oncology"
+  ONC_RADIOTHERAPY:
+    display_name: "Radiotherapy"
+    synonyms: ["radiotherapy", "radiation therapy", "radiation oncology"]
+    category: "oncology"
+  ONC_GENERAL:
+    display_name: "Oncology"
+    synonyms: ["oncology", "oncologic care", "cancer care"]
+    category: "oncology"
+  OBSTETRICS:
+    display_name: "Obstetrics"
+    synonyms: ["obstetrics", "maternity care", "maternal care"]
+    category: "maternity"
+  C_SECTION:
+    display_name: "C-section"
+    synonyms: ["c-section", "caesarean", "cesarean section"]
+    category: "maternity"
+  PEDIATRICS:
+    display_name: "Pediatrics"
+    synonyms: ["pediatrics", "paediatrics", "child health"]
+    category: "pediatrics"
+  EMERGENCY:
+    display_name: "Emergency care"
+    synonyms: ["emergency", "emergency care", "er", "emergency department"]
+    category: "emergency"
+  AMBULANCE:
+    display_name: "Ambulance"
+    synonyms: ["ambulance", "emergency transport"]
+    category: "emergency"
+  DIALYSIS:
+    display_name: "Dialysis"
+    synonyms: ["dialysis", "hemodialysis", "haemodialysis"]
+    category: "renal"
+  SPECIALIST_RADIOLOGY:
+    display_name: "Radiologist"
+    synonyms: ["radiologist", "radiology staff", "radiology specialist"]
+    category: "staff"
+  SPECIALIST_ANESTHESIA:
+    display_name: "Anesthesiologist"
+    synonyms: ["anesthesiologist", "anaesthetist", "anesthesia staff"]
+    category: "staff"
+  SPECIALIST_CRITICAL_CARE:
+    display_name: "Critical care staff"
+    synonyms: ["critical care staff", "icu staff", "intensivist"]
+    category: "staff"

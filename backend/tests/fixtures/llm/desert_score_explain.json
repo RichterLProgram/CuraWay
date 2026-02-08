@@ -1,0 +1,6 @@
+{
+  "normalized_target": "IMAGING_CT",
+  "confidence": 0.72,
+  "explanation": "Evidence indicates CT capability in the facility records [row 1] and [row 3].",
+  "risk_flags": []
+}

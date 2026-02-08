@@ -1,43 +1,24 @@
 from __future__ import annotations
 
 import csv
-import json
+import os
 from typing import List, Mapping
 
-from src.shared.models import FacilityCapabilities, FacilityLocation
-from src.shared.utils import infer_location, load_text_files, write_json
+from src.ai.llm_extractors import extract_facility_from_csv_row
+from src.shared.models import FacilityCapabilities
+from src.shared.utils import load_text_files, write_json
 from src.supply.facility_parser import parse_facility_document
-from src.supply.coverage_analyzer import calculate_coverage_score
+from src.analytics.desert_scoring import score_deserts
+from src.observability.tracing import create_trace_id
 
 
-def _safe_json_list(value: str) -> List[str]:
-    if not value or value == "null":
-        return []
-    try:
-        return json.loads(value)
-    except json.JSONDecodeError:
-        return [item.strip() for item in value.split(",") if item.strip()]
-
-
-def _facility_from_csv(row: Mapping[str, str]) -> FacilityCapabilities:
-    name = str(row.get("name") or "Unknown Facility")
-    city = str(row.get("address_city") or "")
-    region = str(row.get("address_stateOrRegion") or "")
-    location_text = f"{city} {region}".strip() or "Unknown"
-    lat, lng, inferred_region = infer_location(location_text)
-    capabilities = _safe_json_list(str(row.get("capability") or ""))
-    equipment = _safe_json_list(str(row.get("equipment") or ""))
-    specialists = _safe_json_list(str(row.get("specialties") or ""))
-    coverage_score = calculate_coverage_score(capabilities, equipment, specialists)
-
-    return FacilityCapabilities(
-        facility_id=str(row.get("unique_id") or row.get("pk_unique_id") or name)[:12],
-        name=name,
-        location=FacilityLocation(lat=lat, lng=lng, region=inferred_region),
-        capabilities=capabilities,
-        equipment=equipment,
-        specialists=specialists,
-        coverage_score=coverage_score,
+def _facility_from_csv(
+    row: Mapping[str, str],
+    row_index: int,
+    source_doc_id: str,
+) -> FacilityCapabilities:
+    return extract_facility_from_csv_row(
+        row, row_index=row_index, source_doc_id=source_doc_id
     )
 
 
@@ -58,9 +39,27 @@ def run_supply_pipeline(
         for index, row in enumerate(reader):
             if index >= 5:
                 break
-            facilities.append(_facility_from_csv(row))
+            facilities.append(
+                _facility_from_csv(row, row_index=index, source_doc_id=os.path.basename(csv_path))
+            )
 
     if output_path:
         write_json(output_path, [item.model_dump() for item in facilities])
 
     return facilities
+
+
+def score_supply_deserts(
+    facilities: List[FacilityCapabilities],
+    capability_target: str,
+    region: dict | None = None,
+    max_distance_km: float = 200.0,
+    trace_id: str | None = None,
+) -> dict:
+    payload = {
+        "facilities": [item.model_dump() for item in facilities],
+        "capability_target": capability_target,
+        "region": region,
+        "max_distance_km": max_distance_km,
+    }
+    return score_deserts(payload, trace_id=trace_id or create_trace_id())

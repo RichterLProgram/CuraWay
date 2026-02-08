@@ -39,7 +39,9 @@ def detect_deserts(
             continue
 
         available_capabilities = {
-            cap for facility in supply_list for cap in facility.capabilities
+            _entry_name(cap)
+            for facility in supply_list
+            for cap in facility.capabilities
         }
         required_capabilities = {
             cap for demand in demand_list for cap in demand.required_capabilities
@@ -63,3 +65,11 @@ def detect_deserts(
         )
 
     return deserts
+
+
+def _entry_name(entry: object) -> str:
+    if isinstance(entry, dict):
+        return str(entry.get("name") or entry.get("capability_code") or "")
+    if hasattr(entry, "name"):
+        return str(getattr(entry, "name"))
+    return str(entry)

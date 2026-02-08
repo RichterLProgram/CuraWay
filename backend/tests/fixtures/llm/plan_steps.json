@@ -1,0 +1,13 @@
+{
+  "plan_steps": [
+    "Retrieve oncology supply within radius",
+    "Validate facility capabilities with evidence",
+    "Aggregate gaps by region and rank deserts",
+    "Prepare map-ready output for stakeholders"
+  ],
+  "next_actions": [
+    "Request updated facility registry",
+    "Confirm transport constraints with local partners"
+  ],
+  "rationale": "Focus on actionable gaps and evidence-backed recommendations."
+}

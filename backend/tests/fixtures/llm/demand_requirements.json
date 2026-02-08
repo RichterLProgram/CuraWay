@@ -1,0 +1,13 @@
+{
+  "profile": {
+    "patient_id": "unknown",
+    "diagnosis": "Breast cancer",
+    "stage": "II",
+    "biomarkers": ["HER2"],
+    "location": "Accra",
+    "urgency_score": 6
+  },
+  "required_capabilities": ["Oncology", "Imaging"],
+  "travel_radius_km": 60,
+  "evidence": ["diagnosis: breast cancer", "HER2"]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Example Hospital",
+  "location": {"lat": 5.6, "lng": -0.1, "region": "Accra"},
+  "capabilities": ["Emergency care", "Diagnostic imaging", "Oncology"],
+  "equipment": ["CT scanner", "X-ray"],
+  "specialists": ["Radiologist", "Surgeon"],
+  "coverage_score": 78
+}

@@ -51,9 +51,22 @@ def compute_urgency_score(stage: Optional[str], comorbidities: List[str]) -> int
     return min(stage_score + comorbidity_score, 10)
 
 
-def compute_coverage_score(capabilities: List[str], equipment: List[str], specialists: List[str]) -> float:
-    base = len(set(capabilities)) * 8 + len(set(equipment)) * 4 + len(set(specialists)) * 3
+def compute_coverage_score(
+    capabilities: List, equipment: List, specialists: List
+) -> float:
+    cap_values = [_entry_name(item) for item in capabilities]
+    equip_values = [_entry_name(item) for item in equipment]
+    spec_values = [_entry_name(item) for item in specialists]
+    base = len(set(cap_values)) * 8 + len(set(equip_values)) * 4 + len(set(spec_values)) * 3
     return float(min(base, 100))
+
+
+def _entry_name(item: object) -> str:
+    if isinstance(item, dict):
+        return str(item.get("name") or "")
+    if hasattr(item, "name"):
+        return str(getattr(item, "name"))
+    return str(item)
 
 
 def ensure_dir(path: str) -> None:
